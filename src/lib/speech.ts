@@ -65,6 +65,7 @@ export function prepareForSpeech(text: string): string {
     .replace(/\^/g, ' hoch ')
     .replace(/–/g, ', ')
     .replace(/[„“"]/g, '')
+    .replace(/([?!:])\./g, '$1')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -96,45 +97,110 @@ export function questionToSpeech(q: Question): string {
 
 /** Lange Texte in Sätze teilen: iOS bricht sehr lange Äußerungen sonst manchmal ab. */
 function chunks(text: string): string[] {
-  const sentences = text.match(/[^.!?]+[.!?]*/g) ?? [text];
+  // An Wortgrenzen sammeln und am Satzende trennen. Punkte in Zahlen wie 192.168.1.0 trennen nicht.
+  const words = text.split(' ').filter(Boolean);
   const out: string[] = [];
   let buf = '';
-  for (const s of sentences) {
-    if ((buf + s).length > 220 && buf) { out.push(buf.trim()); buf = ''; }
-    buf += s;
+  for (const w of words) {
+    buf = buf ? `${buf} ${w}` : w;
+    const sentenceEnd = /[.!?:]$/.test(w);
+    if ((sentenceEnd && buf.length >= 110) || buf.length >= 260) {
+      out.push(buf);
+      buf = '';
+    }
   }
-  if (buf.trim()) out.push(buf.trim());
+  if (buf) out.push(buf);
   return out;
+}
+
+/** Referenzen festhalten: manche Browser verwerfen laufende Äußerungen sonst vorzeitig. */
+let live: SpeechSynthesisUtterance[] = [];
+let session = 0;
+let watchdog: ReturnType<typeof setTimeout> | null = null;
+
+export const currentSpeakingId = () => currentId;
+
+function finish(mySession: number) {
+  if (mySession !== session) return;
+  if (watchdog) clearTimeout(watchdog);
+  live = [];
+  currentId = null;
+  emit();
 }
 
 export function stopSpeaking() {
   if (!speechSupported()) return;
-  window.speechSynthesis.cancel();
-  currentId = null;
-  emit();
+  session++;
+  if (watchdog) clearTimeout(watchdog);
+  live = [];
+  const synth = window.speechSynthesis;
+  if (synth.speaking || synth.pending) synth.cancel();
+  if (currentId !== null) {
+    currentId = null;
+    emit();
+  }
 }
 
 export function speak(id: string, text: string) {
   if (!speechSupported()) return;
   const synth = window.speechSynthesis;
-  synth.cancel();
+  const mySession = ++session;
+  if (watchdog) clearTimeout(watchdog);
   const st = getState();
   const voices = germanVoices();
   const voice = voices.find((v) => v.voiceURI === st.speechVoice) ?? voices.find((v) => v.lang === 'de-DE') ?? voices[0];
   const parts = chunks(prepareForSpeech(text));
+  if (!parts.length) return;
   currentId = id;
   emit();
-  parts.forEach((p, i) => {
-    const u = new SpeechSynthesisUtterance(p);
+
+  // Die Teile werden nacheinander gesprochen. iOS verschluckt sonst lange Warteschlangen.
+  const sayPart = (i: number) => {
+    if (mySession !== session) return;
+    if (i >= parts.length) return finish(mySession);
+    const u = new SpeechSynthesisUtterance(parts[i]);
     u.lang = 'de-DE';
     if (voice) u.voice = voice;
     u.rate = st.speechRate ?? 1;
-    if (i === parts.length - 1) {
-      u.onend = () => { if (currentId === id) { currentId = null; emit(); } };
+    let done = false;
+    const next = () => {
+      if (done) return;
+      done = true;
+      if (watchdog) clearTimeout(watchdog);
+      sayPart(i + 1);
+    };
+    u.onend = next;
+    u.onerror = (e) => {
+      // Abbruch durch Stopp oder neuen Text: nichts weiter tun
+      if (mySession !== session || e.error === 'canceled' || e.error === 'interrupted') return;
+      next();
+    };
+    live = [u];
+    try {
+      synth.resume();
+      synth.speak(u);
+    } catch {
+      return finish(mySession);
     }
-    u.onerror = () => { if (currentId === id) { currentId = null; emit(); } };
-    synth.speak(u);
-  });
+    // Sicherheitsnetz, falls ein Browser das Ende nicht meldet
+    if (watchdog) clearTimeout(watchdog);
+    const budget = 6000 + (parts[i].length * 140) / Math.max(0.5, u.rate);
+    watchdog = setTimeout(() => {
+      if (mySession !== session || done) return;
+      if (synth.speaking) {
+        // spricht noch: weiter warten
+        watchdog = setTimeout(() => { if (mySession === session && !done && !synth.speaking) next(); }, 8000);
+      } else next();
+    }, budget);
+  };
+
+  if (synth.speaking || synth.pending) {
+    // Erst abbrechen, dann kurz warten: direktes Sprechen nach cancel() geht auf iOS oft verloren.
+    synth.cancel();
+    setTimeout(() => sayPart(0), 150);
+  } else {
+    sayPart(0);
+  }
 }
 
 export function toggleSpeak(id: string, text: string) {

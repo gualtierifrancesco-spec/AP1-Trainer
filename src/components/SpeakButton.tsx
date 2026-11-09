@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { speechSupported, stopSpeaking, toggleSpeak, useSpeakingId } from '../lib/speech';
+import { currentSpeakingId, speechSupported, stopSpeaking, toggleSpeak, useSpeakingId } from '../lib/speech';
 
 interface Props {
   id: string;
@@ -11,7 +11,8 @@ interface Props {
 /** Knopf „Vorlesen“ / „Stopp“. Wird ausgeblendet, wenn das Gerät keine Sprachausgabe hat. */
 export function SpeakButton({ id, text, label = 'Vorlesen', small = true }: Props) {
   const speaking = useSpeakingId() === id;
-  useEffect(() => () => { if (speaking) stopSpeaking(); }, [speaking]);
+  // Nur beim Verlassen stoppen, und nur wenn dieser Knopf gerade vorliest
+  useEffect(() => () => { if (currentSpeakingId() === id) stopSpeaking(); }, [id]);
   if (!speechSupported()) return null;
   return (
     <button
