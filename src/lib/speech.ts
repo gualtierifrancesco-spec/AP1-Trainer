@@ -20,9 +20,45 @@ export function useSpeakingId(): string | null {
   );
 }
 
+/** Blecherne Synthesizer-Stimmen, die iOS und macOS unter Deutsch mitliefern */
+const ROBOTIC = /eddy|flo\b|grandma|grandpa|reed|rocko|sandy|shelley|espeak|albert|bahh|bells|boing|bubbles|cellos|jester|organ|superstar|trinoids|whisper|wobble|zarvox|fred|junior|kathy|ralph/i;
+const NATURAL = /anna|petra|markus|viktor|yannick|helena|martin|katja|conrad|google|natural|neural|online/i;
+
+/** Höher ist besser: natürliche und hochwertige Stimmen zuerst, Roboter-Stimmen zuletzt. */
+export function voiceScore(v: { name: string; lang: string; voiceURI?: string; localService?: boolean }): number {
+  const id = `${v.name} ${v.voiceURI ?? ''}`;
+  let s = 0;
+  if (ROBOTIC.test(v.name)) s -= 100;
+  if (/premium/i.test(id)) s += 60;
+  else if (/enhanced|erweitert|verbessert/i.test(id)) s += 45;
+  if (/natural|neural/i.test(id)) s += 50;
+  if (NATURAL.test(v.name)) s += 20;
+  if (/siri/i.test(id)) s += 30;
+  if (/compact/i.test(id)) s -= 5;
+  if (v.lang.replace('_', '-').toLowerCase() === 'de-de') s += 5;
+  return s;
+}
+
+export function voiceQuality(v: SpeechSynthesisVoice): 'gut' | 'normal' | 'roboter' {
+  const s = voiceScore(v);
+  return s >= 40 ? 'gut' : s < 0 ? 'roboter' : 'normal';
+}
+
 export function germanVoices(): SpeechSynthesisVoice[] {
   if (!speechSupported()) return [];
-  return window.speechSynthesis.getVoices().filter((v) => v.lang.toLowerCase().startsWith('de'));
+  return window.speechSynthesis
+    .getVoices()
+    .filter((v) => v.lang.toLowerCase().startsWith('de'))
+    .sort((a, b) => voiceScore(b) - voiceScore(a) || a.name.localeCompare(b.name));
+}
+
+/** Gewählte Stimme, sonst die beste vorhandene. Gibt es nur Roboter-Stimmen, entscheidet das Gerät. */
+export function pickVoice(chosen?: string): SpeechSynthesisVoice | undefined {
+  const voices = germanVoices();
+  const own = voices.find((v) => v.voiceURI === chosen);
+  if (own) return own;
+  const best = voices[0];
+  return best && voiceScore(best) >= 0 ? best : undefined;
 }
 
 /** Stimmen laden asynchron (vor allem in Chrome). */
@@ -147,8 +183,7 @@ export function speak(id: string, text: string) {
   const mySession = ++session;
   if (watchdog) clearTimeout(watchdog);
   const st = getState();
-  const voices = germanVoices();
-  const voice = voices.find((v) => v.voiceURI === st.speechVoice) ?? voices.find((v) => v.lang === 'de-DE') ?? voices[0];
+  const voice = pickVoice(st.speechVoice);
   const parts = chunks(prepareForSpeech(text));
   if (!parts.length) return;
   currentId = id;
@@ -161,7 +196,7 @@ export function speak(id: string, text: string) {
     const u = new SpeechSynthesisUtterance(parts[i]);
     u.lang = 'de-DE';
     if (voice) u.voice = voice;
-    u.rate = st.speechRate ?? 1;
+    u.rate = st.speechRate ?? 0.95;
     let done = false;
     const next = () => {
       if (done) return;

@@ -223,3 +223,16 @@ describe('Vorlesen', () => {
     expect(m).toContain('B: Switch.');
   });
 });
+
+import { voiceScore } from '../src/lib/speech';
+describe('Stimmenauswahl', () => {
+  it('zieht hochwertige Stimmen vor und meidet Roboter-Stimmen', () => {
+    const v = (name: string, voiceURI = name) => ({ name, lang: 'de-DE', voiceURI });
+    const list = [v('Eddy'), v('Rocko'), v('Anna', 'com.apple.voice.compact.de-DE.Anna'), v('Anna (Erweitert)', 'com.apple.voice.enhanced.de-DE.Anna'), v('Petra (Premium)', 'com.apple.voice.premium.de-DE.Petra'), v('Grandma')];
+    const sorted = list.slice().sort((a, b) => voiceScore(b) - voiceScore(a));
+    expect(sorted[0].name).toBe('Petra (Premium)');
+    expect(sorted[1].name).toBe('Anna (Erweitert)');
+    expect(sorted[2].name).toBe('Anna');
+    expect(voiceScore(v('Eddy'))).toBeLessThan(0);
+  });
+});

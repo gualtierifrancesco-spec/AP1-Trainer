@@ -3,7 +3,7 @@ import { defaultState, exportState, importState, replaceState, setState, storage
 import { POOL_STATS } from '../data/bank';
 import { FLASHCARDS, TOPICS } from '../data/topics';
 import { toast } from '../components/ui';
-import { speak, speechSupported, useGermanVoices } from '../lib/speech';
+import { pickVoice, speak, speechSupported, useGermanVoices, voiceQuality } from '../lib/speech';
 
 export function Options() {
   const s = useAppState();
@@ -45,17 +45,20 @@ export function Options() {
             <p className="small muted">Neben jeder Aufgabe, jedem Unterrichtsabschnitt, jeder Lernkarte und jeder Antwort des Ausbilders gibt es einen 🔊-Knopf. Die Stimme kommt vom Gerät und funktioniert auf dem iPhone auch offline. Weitere deutsche Stimmen kannst du am iPhone unter Einstellungen → Bedienungshilfen → Gesprochene Inhalte → Stimmen → Deutsch laden.</p>
             <span className="small" style={{ fontWeight: 700 }}>Geschwindigkeit</span>
             <div className="chips">
-              {[[0.8, 'Langsam'], [0.9, 'Etwas langsamer'], [1, 'Normal'], [1.15, 'Schneller']].map(([r, l]) => (
-                <button key={r} className="chip" aria-pressed={(s.speechRate ?? 1) === r} onClick={() => setState((st) => ({ ...st, speechRate: r as number }), true)}>{l}</button>
+              {[[0.8, 'Langsam'], [0.95, 'Ruhig'], [1.05, 'Normal'], [1.2, 'Schneller']].map(([r, l]) => (
+                <button key={r} className="chip" aria-pressed={(s.speechRate ?? 0.95) === r} onClick={() => setState((st) => ({ ...st, speechRate: r as number }), true)}>{l}</button>
               ))}
             </div>
-            {voices.length > 1 && (
-              <div className="field" style={{ maxWidth: 360 }}>
+            {voices.length > 0 && (
+              <div className="field" style={{ maxWidth: 420 }}>
                 <label htmlFor="opt-voice">Stimme</label>
-                <select id="opt-voice" value={s.speechVoice ?? ''} onChange={(e) => setState((st) => ({ ...st, speechVoice: e.target.value || undefined }), true)}>
-                  <option value="">Standard</option>
-                  {voices.map((v) => <option key={v.voiceURI} value={v.voiceURI}>{v.name}{v.localService ? '' : ' (online)'}</option>)}
+                <select id="opt-voice" value={s.speechVoice ?? ''} onChange={(e) => { const v = e.target.value || undefined; setState((st) => ({ ...st, speechVoice: v }), true); setTimeout(() => speak('test', 'Hallo, so klinge ich. Wir lernen heute gemeinsam für die AP1.'), 50); }}>
+                  <option value="">Automatisch: {pickVoice()?.name ?? 'Stimme des Geräts'}</option>
+                  {voices.map((v) => { const q = voiceQuality(v); return <option key={v.voiceURI} value={v.voiceURI}>{q === 'gut' ? '★ ' : ''}{v.name}{q === 'roboter' ? ' (Roboter-Stimme)' : ''}{v.localService ? '' : ' (online)'}</option>; })}
                 </select>
+                {!voices.some((v) => voiceQuality(v) === 'gut') && (
+                  <p className="small" style={{ color: 'var(--flag)' }}>Auf diesem Gerät ist noch keine hochwertige deutsche Stimme geladen. So holst du dir eine: iPhone-Einstellungen → Bedienungshilfen → Gesprochene Inhalte → Stimmen → Deutsch → zum Beispiel „Anna“ oder „Petra“ antippen und die Version „Erweitert“ oder „Premium“ laden. Danach die App neu öffnen. Die Stimme erscheint dann hier mit einem ★.</p>
+                )}
               </div>
             )}
             <label className="row small"><input id="opt-auto" type="checkbox" checked={!!s.speechAuto} onChange={(e) => setState((st) => ({ ...st, speechAuto: e.target.checked }), true)} /> Aufgaben im Lernmodus automatisch vorlesen</label>
