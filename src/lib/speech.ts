@@ -1,6 +1,7 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import type { Question } from '../types';
 import { getState } from './store';
+import { neuralState, playWav, stopAudio, synthesize, unlockAudio } from './neuralTts';
 
 /** Vorlesen über die Sprachausgabe des Geräts (Web Speech API). Kostenlos, auf dem iPhone auch offline. */
 
@@ -9,6 +10,9 @@ const LETTERS = 'ABCDEFGH';
 export const speechSupported = () => typeof window !== 'undefined' && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
 
 let currentId: string | null = null;
+/** 'preparing' = die KI-Stimme rechnet noch am ersten Teil */
+let phase: 'preparing' | 'speaking' | null = null;
+let lastNotice: string | null = null;
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
 
@@ -19,6 +23,23 @@ export function useSpeakingId(): string | null {
     () => null,
   );
 }
+
+export function useSpeechPhase(): 'preparing' | 'speaking' | null {
+  return useSyncExternalStore(
+    (fn) => { listeners.add(fn); return () => listeners.delete(fn); },
+    () => phase,
+    () => null,
+  );
+}
+
+/** Hinweis für die Oberfläche, z. B. wenn auf die Gerätestimme zurückgeschaltet wurde */
+export function takeSpeechNotice(): string | null {
+  const n = lastNotice;
+  lastNotice = null;
+  return n;
+}
+
+export const usesNeural = () => getState().speechEngine === 'neural' && ['available', 'loading', 'ready'].includes(neuralState().status);
 
 /** Blecherne Synthesizer-Stimmen, die iOS und macOS unter Deutsch mitliefern */
 const ROBOTIC = /eddy|flo\b|grandma|grandpa|reed|rocko|sandy|shelley|espeak|albert|bahh|bells|boing|bubbles|cellos|jester|organ|superstar|trinoids|whisper|wobble|zarvox|fred|junior|kathy|ralph/i;
@@ -161,33 +182,93 @@ function finish(mySession: number) {
   if (watchdog) clearTimeout(watchdog);
   live = [];
   currentId = null;
+  phase = null;
   emit();
 }
 
 export function stopSpeaking() {
-  if (!speechSupported()) return;
   session++;
   if (watchdog) clearTimeout(watchdog);
   live = [];
-  const synth = window.speechSynthesis;
-  if (synth.speaking || synth.pending) synth.cancel();
-  if (currentId !== null) {
+  stopAudio();
+  if (speechSupported()) {
+    const synth = window.speechSynthesis;
+    if (synth.speaking || synth.pending) synth.cancel();
+  }
+  if (currentId !== null || phase !== null) {
     currentId = null;
+    phase = null;
     emit();
   }
 }
 
+/** Abkürzungen, die die KI-Stimme sonst buchstabiert oder falsch betont */
+export function prepareForNeural(text: string): string {
+  return text
+    .replace(/\bRAM\b/g, 'Ramm')
+    .replace(/\bROM\b/g, 'Romm')
+    .replace(/(\d) ?€/g, '$1 Euro')
+    .replace(/(\d) ?%/g, '$1 Prozent');
+}
+
+/** Vorlesen mit der KI-Stimme: Teil für Teil berechnen, den nächsten schon während des Abspielens. */
+async function neuralSpeak(id: string, parts: string[], mySession: number, rate: number) {
+  const texts = parts.map(prepareForNeural);
+  const jobs = new Map<number, Promise<ArrayBuffer>>();
+  const job = (i: number) => {
+    if (!jobs.has(i)) {
+      const p = synthesize(texts[i], rate);
+      p.catch(() => undefined);
+      jobs.set(i, p);
+    }
+    return jobs.get(i)!;
+  };
+  try {
+    for (let i = 0; i < texts.length; i++) {
+      const wav = await job(i);
+      if (mySession !== session) return;
+      if (i + 1 < texts.length) job(i + 1);
+      if (phase !== 'speaking') { phase = 'speaking'; emit(); }
+      await playWav(wav);
+      if (mySession !== session) return;
+    }
+    finish(mySession);
+  } catch {
+    if (mySession !== session) return;
+    // Rückfall auf die Stimme des Geräts
+    lastNotice = neuralState().error ?? 'Die KI-Stimme hat nicht geantwortet. Ich lese mit der Stimme des Geräts vor.';
+    stopAudio();
+    phase = 'speaking';
+    emit();
+    deviceSpeak(parts, mySession);
+  }
+}
+
 export function speak(id: string, text: string) {
-  if (!speechSupported()) return;
-  const synth = window.speechSynthesis;
+  const neural = usesNeural();
+  if (!neural && !speechSupported()) return;
   const mySession = ++session;
   if (watchdog) clearTimeout(watchdog);
-  const st = getState();
-  const voice = pickVoice(st.speechVoice);
   const parts = chunks(prepareForSpeech(text));
   if (!parts.length) return;
+  stopAudio();
+  if (speechSupported() && (window.speechSynthesis.speaking || window.speechSynthesis.pending) && neural) window.speechSynthesis.cancel();
   currentId = id;
+  phase = neural ? 'preparing' : 'speaking';
   emit();
+  if (neural) {
+    unlockAudio();
+    void neuralSpeak(id, parts, mySession, getState().speechRate ?? 0.95);
+    return;
+  }
+  deviceSpeak(parts, mySession);
+}
+
+function deviceSpeak(parts: string[], mySession: number) {
+  if (!speechSupported()) return finish(mySession);
+  const synth = window.speechSynthesis;
+  const st = getState();
+  const voice = pickVoice(st.speechVoice);
 
   // Die Teile werden nacheinander gesprochen. iOS verschluckt sonst lange Warteschlangen.
   const sayPart = (i: number) => {

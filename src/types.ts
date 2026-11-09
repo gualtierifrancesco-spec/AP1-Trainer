@@ -169,5 +169,7 @@ export interface AppState {
   speechVoice?: string;
   /** Fragen beim Öffnen automatisch vorlesen */
   speechAuto?: boolean;
+  /** 'neural' = KI-Stimme, die in der App rechnet; sonst Stimme des Geräts */
+  speechEngine?: 'device' | 'neural';
   dailySeconds: Record<string, number>;
 }

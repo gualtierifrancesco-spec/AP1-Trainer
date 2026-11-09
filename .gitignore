@@ -3,3 +3,11 @@ dist
 dist-single
 *.log
 .DS_Store
+
+# KI-Stimme: wird mit "npm run voice" erzeugt (große Dateien)
+public/tts/*.onnx
+public/tts/*.onnx.json
+public/tts/*.wasm
+public/tts/*.data
+public/tts/ort.min.js
+public/tts/piper_phonemize.js

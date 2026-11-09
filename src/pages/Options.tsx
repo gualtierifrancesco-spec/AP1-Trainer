@@ -4,6 +4,8 @@ import { POOL_STATS } from '../data/bank';
 import { FLASHCARDS, TOPICS } from '../data/topics';
 import { toast } from '../components/ui';
 import { pickVoice, speak, speechSupported, useGermanVoices, voiceQuality } from '../lib/speech';
+import { loadNeural, NEURAL_SIZE_MB, NEURAL_VOICE_NAME, unlockAudio, useNeuralState } from '../lib/neuralTts';
+import { Bar } from '../components/ui';
 
 export function Options() {
   const s = useAppState();
@@ -11,6 +13,13 @@ export function Options() {
   const [importText, setImportText] = useState('');
   const [confirmReset, setConfirmReset] = useState(false);
   const voices = useGermanVoices();
+  const neural = useNeuralState();
+  const neuralOn = s.speechEngine === 'neural' && neural.status !== 'unavailable';
+  const enableNeural = () => {
+    unlockAudio();
+    setState((st) => ({ ...st, speechEngine: 'neural' }), true);
+    loadNeural().then(() => speak('test', 'Hallo, ich bin die neue Stimme. Wir lernen jetzt gemeinsam für die AP1.'), () => undefined);
+  };
 
   const copy = async () => {
     const data = exportState();
@@ -38,6 +47,21 @@ export function Options() {
 
       <div className="card stack">
         <h3>Vorlesen</h3>
+        {neural.status !== 'unavailable' && neural.status !== 'unknown' && (
+          <div className="card tint stack">
+            <div className="row between"><b>Natürliche KI-Stimme „{NEURAL_VOICE_NAME}“</b>{neuralOn && neural.status === 'ready' && <span className="badge good">aktiv</span>}</div>
+            <p className="small">Diese Stimme rechnet direkt auf deinem Gerät. Sie klingt deutlich natürlicher als die eingebaute Stimme, ist kostenlos und funktioniert nach dem Laden auch offline. Einmalig werden etwa {NEURAL_SIZE_MB} MB geladen, am besten im WLAN. Vor jedem Text rechnet sie ein paar Sekunden.</p>
+            {neural.status === 'loading' && (
+              <div className="stack tight"><Bar pct={neural.progress * 100} /><span className="small muted tnum">{neural.stage === 'Stimme' ? `Stimme wird geladen: ${Math.round(neural.progress * 100)} %` : neural.stage === 'Starte' ? 'Stimme wird gestartet …' : 'Sprachdaten werden geladen …'}</span></div>
+            )}
+            {neural.status === 'error' && <p className="small" style={{ color: 'var(--bad)' }}>{neural.error}</p>}
+            <div className="row">
+              {!neuralOn && <button className="btn primary" onClick={enableNeural}>KI-Stimme einschalten</button>}
+              {neuralOn && neural.status !== 'loading' && <button className="btn" onClick={() => { if (neural.status === 'ready') speak('test', 'So klinge ich. Ein Netz mit /26 hat 62 nutzbare Hosts.'); else enableNeural(); }}>{neural.status === 'ready' ? '🔊 Probe hören' : neural.status === 'error' ? 'Noch einmal versuchen' : 'Stimme jetzt laden'}</button>}
+              {neuralOn && <button className="btn ghost" onClick={() => setState((st) => ({ ...st, speechEngine: 'device' }), true)}>Zurück zur Stimme des Geräts</button>}
+            </div>
+          </div>
+        )}
         {!speechSupported() ? (
           <p className="muted">Dieser Browser hat keine Sprachausgabe. Auf iPhone, Android und in Chrome, Edge oder Safari funktioniert es.</p>
         ) : (
@@ -49,9 +73,9 @@ export function Options() {
                 <button key={r} className="chip" aria-pressed={(s.speechRate ?? 0.95) === r} onClick={() => setState((st) => ({ ...st, speechRate: r as number }), true)}>{l}</button>
               ))}
             </div>
-            {voices.length > 0 && (
+            {voices.length > 0 && !neuralOn && (
               <div className="field" style={{ maxWidth: 420 }}>
-                <label htmlFor="opt-voice">Stimme</label>
+                <label htmlFor="opt-voice">Stimme des Geräts</label>
                 <select id="opt-voice" value={s.speechVoice ?? ''} onChange={(e) => { const v = e.target.value || undefined; setState((st) => ({ ...st, speechVoice: v }), true); setTimeout(() => speak('test', 'Hallo, so klinge ich. Wir lernen heute gemeinsam für die AP1.'), 50); }}>
                   <option value="">Automatisch: {pickVoice()?.name ?? 'Stimme des Geräts'}</option>
                   {voices.map((v) => { const q = voiceQuality(v); return <option key={v.voiceURI} value={v.voiceURI}>{q === 'gut' ? '★ ' : ''}{v.name}{q === 'roboter' ? ' (Roboter-Stimme)' : ''}{v.localService ? '' : ' (online)'}</option>; })}

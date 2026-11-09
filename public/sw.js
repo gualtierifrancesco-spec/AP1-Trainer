@@ -1,5 +1,7 @@
 // Service Worker: macht die App offline nutzbar.
 const CACHE = 'ap1-trainer-v1';
+// Große Dateien der KI-Stimme: eigener Speicher, wird nie im Hintergrund neu geladen
+const VOICE_CACHE = 'ap1-voice-v1';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {
@@ -8,7 +10,7 @@ self.addEventListener('install', (e) => {
 
 self.addEventListener('activate', (e) => {
   e.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()),
+    caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE && k !== VOICE_CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()),
   );
 });
 
@@ -24,6 +26,18 @@ self.addEventListener('fetch', (e) => {
         caches.open(CACHE).then((c) => c.put('./index.html', copy));
         return res;
       }).catch(() => caches.match('./index.html')),
+    );
+    return;
+  }
+  // KI-Stimme: zuerst aus dem Speicher, nur beim ersten Mal aus dem Netz
+  if (url.origin === location.origin && url.pathname.includes('/tts/') && !url.pathname.endsWith('.js')) {
+    e.respondWith(
+      caches.open(VOICE_CACHE).then((c) =>
+        c.match(req).then((hit) => hit || fetch(req).then((res) => {
+          if (res.ok) c.put(req, res.clone()).catch(() => undefined);
+          return res;
+        })),
+      ),
     );
     return;
   }

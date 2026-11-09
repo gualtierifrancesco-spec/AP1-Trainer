@@ -45,6 +45,16 @@ Weitere Befehle:
 - **„Frag meinen IT-Ausbilder“:** gibt Tipps statt sofortiger Lösungen, erklärt einfacher, zeigt Beispiele, führt Rechenwege schrittweise, stellt Rückfragen und prüft die Antwort.
 - **Hell/Dunkel**, optimiert für PC, Tablet und Smartphone, Sicherung/Wiederherstellung des Lernstands per Text.
 
+## Vorlesen und KI-Stimme
+
+Jede Aufgabe, jeder Unterrichtsabschnitt, jede Lernkarte und jede Antwort des Ausbilders lässt sich vorlesen. Standard ist die Sprachausgabe des Geräts (Web Speech API). Auf dem iPhone stehen Web-Apps nur einfache Stimmen zur Verfügung, deshalb gibt es zusätzlich eine **KI-Stimme, die im Browser rechnet** (Piper/VITS über onnxruntime-web, Stimme „Thorsten“, Datensatz CC0).
+
+- `npm run voice` kopiert Rechenkern und Phonemizer aus `node_modules` nach `public/tts/` und lädt das Stimm-Modell (ca. 63 MB) von Hugging Face. Beim Veröffentlichen über GitHub Actions passiert das automatisch. Die großen Dateien liegen nicht im Repository.
+- Ohne diesen Schritt läuft die App normal, die KI-Stimme wird dann einfach nicht angeboten.
+- Eingeschaltet wird sie unter Einstellungen → Vorlesen. Beim ersten Mal lädt der Browser rund 95 MB und speichert sie für die Offline-Nutzung.
+- Das Modell muss zum Phonemizer passen. Das Skript nutzt deshalb bewusst die Piper-1.0-Version der Stimme.
+- Lizenzen: onnxruntime-web (MIT), piper-wasm (MIT, enthält espeak-ng unter GPL-3.0), Stimme Thorsten-Voice (CC0).
+
 ## Wichtig zu wissen
 
 - **IT-Ausbilder:** In der lokalen Version arbeitet er **regelbasiert offline** (Wissensbasis aus dem Unterricht, Tipps, Rechenwege, Rückfragen). Er versteht deshalb nur Fragen zu Begriffen und Themen, die im Lernstoff vorkommen. In der in Claude veröffentlichten Version kann er zusätzlich **Claude als echten KI-Ausbilder** nutzen (über dein Claude-Konto, nach deiner Freigabe). Ein eigenes Backend mit KI-Schnittstelle lässt sich später in `src/lib/tutor.ts` ergänzen.

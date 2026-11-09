@@ -15,6 +15,7 @@ import { Options } from './pages/Options';
 import type { TopicId } from './types';
 import { TOPIC_MAP } from './data/topics';
 import { stopSpeaking } from './lib/speech';
+import { checkNeural } from './lib/neuralTts';
 
 const NAV = [
   { id: 'start', label: 'Dashboard', icon: '▦' },
@@ -51,6 +52,7 @@ function Shell() {
   }, [s.theme]);
 
   useEffect(() => { stopSpeaking(); }, [route]);
+  useEffect(() => { void checkNeural(); }, []);
 
   const cur = section(route);
   const examRunning = route === 'pruefung' && !!s.activeExamId;
