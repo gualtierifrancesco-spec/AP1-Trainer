@@ -51,6 +51,16 @@ await clickText('Prüfen');
 await expectText('Netzadresse falsch');
 log('Unterricht + Subnetz-Trainer ok');
 
+// Vorlesen
+await page.goto(url + '#thema-osi'); await sleep(250);
+const speakBtns = await page.$$eval('.speak-btn', (b) => b.length);
+if (!speakBtns) throw new Error('Kein Vorlesen-Knopf');
+await page.click('.speak-btn'); await sleep(300);
+await page.goto(url + '#optionen'); await sleep(200);
+await expectText('Vorlesen');
+await clickText('Langsam');
+log('Vorlesen ok');
+
 // Alle Themen-Widgets und Zusammenfassungen rendern
 for (const t of ['hardware', 'ergonomie', 'netzwerk', 'osi', 'software', 'sicherheit', 'datenschutz', 'rechnen', 'wirtschaftlichkeit', 'projekt']) {
   await page.goto(url + '#thema-' + t); await sleep(250);

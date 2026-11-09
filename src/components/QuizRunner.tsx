@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { getState } from '../lib/store';
+import { questionToSpeech, speak } from '../lib/speech';
 import type { Answer, GradeResult, Question } from '../types';
 import { QuestionView } from './QuestionView';
 import { emptyAnswer, grade, isAnswered } from '../lib/grading';
@@ -30,6 +32,9 @@ export function QuizRunner({ questions, onFinish, onCancel, title }: Props) {
   const a = answers[q.id] ?? emptyAnswer(q);
   const res = checked[q.id];
   useTutorContext({ topic: q.topic, question: q, answer: res ? a : undefined, result: res });
+  useEffect(() => {
+    if (getState().speechAuto) speak(`q-${q.id}`, questionToSpeech(q));
+  }, [q]);
 
   const check = () => {
     const r = grade(q, a);

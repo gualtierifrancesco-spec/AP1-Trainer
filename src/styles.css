@@ -384,3 +384,9 @@ input[type='range'], input[type='checkbox'] { accent-color: var(--accent); }
   .card .card { padding: 12px; }
 }
 body::before { content: ''; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+
+/* Vorlesen */
+.speak-btn { gap: 6px; }
+.bubble .speak-btn { min-height: 26px; padding: 2px 8px; font-size: 0.78rem; }
+.bubble.tutor .speak-btn.ghost { color: var(--ink-3); }
+@media (max-width: 420px) { .q-head .speak-label { display: none; } }

@@ -3,6 +3,8 @@ import type { Answer, GradeResult, Question } from '../types';
 import { TOPIC_MAP } from '../data/topics';
 import { rng, shuffle } from '../lib/util';
 import { emptyAnswer, solutionText } from '../lib/grading';
+import { questionToSpeech } from '../lib/speech';
+import { SpeakButton } from './SpeakButton';
 
 const LETTERS = 'ABCDEFGH';
 const TYPE_LABEL: Record<Question['type'], string> = {
@@ -45,7 +47,10 @@ export function QuestionView({ q, answer, onChange, result, reveal, label, overr
         {showMeta && <span className="badge accent">{TOPIC_MAP[q.topic].short}</span>}
         {showMeta && <span className="badge">{TYPE_LABEL[q.type]}</span>}
         {showMeta && <span className="badge">{LEVEL_LABEL[q.level]}</span>}
-        <span className="badge tnum" style={{ marginLeft: 'auto' }}>{q.points} Punkte</span>
+        <span className="row" style={{ marginLeft: 'auto', gap: 6 }}>
+          <SpeakButton id={`q-${q.id}`} text={() => questionToSpeech(q)} />
+          <span className="badge tnum">{q.points} Punkte</span>
+        </span>
       </div>
       {q.scenario && <p className="scenario">{q.scenario}</p>}
       <p className="q-text">{q.question}</p>
@@ -155,7 +160,7 @@ function Solution({ q, result, override, onOverride }: { q: Question; result?: G
   return (
     <div className={`feedback ${status}`}>
       <div className="row between">
-        <h4>{title}</h4>
+        <span className="row" style={{ gap: 6 }}><h4>{title}</h4><SpeakButton id={`sol-${q.id}`} label="Lösung vorlesen" text={() => `${title}. Musterlösung: ${solutionText(q)}. ${q.type === 'calc' ? 'Rechenweg: ' + q.steps.join('. ') + '. ' : ''}Erklärung: ${q.explanation}`} /></span>
         <span className="badge tnum">{pts} / {q.points} Punkte{override !== undefined ? ' (selbst korrigiert)' : ''}</span>
       </div>
       {result && result.details.length > 0 && (

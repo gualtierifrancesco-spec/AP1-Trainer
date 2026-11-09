@@ -14,6 +14,7 @@ import { Plan } from './pages/Plan';
 import { Options } from './pages/Options';
 import type { TopicId } from './types';
 import { TOPIC_MAP } from './data/topics';
+import { stopSpeaking } from './lib/speech';
 
 const NAV = [
   { id: 'start', label: 'Dashboard', icon: '▦' },
@@ -49,6 +50,8 @@ function Shell() {
     else root.setAttribute('data-theme', s.theme);
   }, [s.theme]);
 
+  useEffect(() => { stopSpeaking(); }, [route]);
+
   const cur = section(route);
   const examRunning = route === 'pruefung' && !!s.activeExamId;
 
@@ -57,12 +60,12 @@ function Shell() {
   const arg = rest.join('-');
   switch (base) {
     case 'lernen': page = <TopicList />; break;
-    case 'thema': page = TOPIC_MAP[arg as TopicId] ? <TopicView id={arg as TopicId} /> : <TopicList />; break;
-    case 'ueben': page = <Practice preset={TOPIC_MAP[arg as TopicId] ? (arg as TopicId) : undefined} />; break;
+    case 'thema': page = TOPIC_MAP[arg as TopicId] ? <TopicView key={arg} id={arg as TopicId} /> : <TopicList />; break;
+    case 'ueben': page = <Practice key={arg} preset={TOPIC_MAP[arg as TopicId] ? (arg as TopicId) : undefined} />; break;
     case 'pruefung': page = <ExamPage />; break;
     case 'auswertung': page = <Results id={arg} />; break;
     case 'wiederholen': page = <Review />; break;
-    case 'karten': page = <Flashcards preset={TOPIC_MAP[arg as TopicId] ? (arg as TopicId) : undefined} />; break;
+    case 'karten': page = <Flashcards key={arg} preset={TOPIC_MAP[arg as TopicId] ? (arg as TopicId) : undefined} />; break;
     case 'plan': page = <Plan />; break;
     case 'optionen': page = <Options />; break;
     case 'mehr': page = <More due={due} />; break;

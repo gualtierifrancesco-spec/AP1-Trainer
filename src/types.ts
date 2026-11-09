@@ -163,5 +163,11 @@ export interface AppState {
   exams: ExamRecord[];
   activeExamId?: string;
   studySeconds: number;
+  /** Vorlesegeschwindigkeit 0,6 bis 1,4 */
+  speechRate?: number;
+  /** voiceURI der gewählten deutschen Stimme */
+  speechVoice?: string;
+  /** Fragen beim Öffnen automatisch vorlesen */
+  speechAuto?: boolean;
   dailySeconds: Record<string, number>;
 }

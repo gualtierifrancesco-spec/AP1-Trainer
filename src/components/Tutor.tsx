@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { TOPIC_MAP } from '../data/topics';
 import { buildRules, getSample, newMemory, offlineTutor, type TutorMemory, type TutorMsg } from '../lib/tutor';
 import { useTutor } from './ui';
+import { SpeakButton } from './SpeakButton';
 
 const QUICK = ['Erkläre es mir einfacher', 'Zeig mir ein Beispiel', 'Gib mir einen Tipp', 'Zeig mir den Rechenweg', 'Warum ist meine Antwort falsch?', 'Gib mir eine schwierigere Aufgabe', 'Erkläre es, als hätte ich noch nie davon gehört'];
 
@@ -127,6 +128,7 @@ export function Tutor() {
           {msgs.map((m, i) => (
             <div key={i} className={`bubble ${m.role}`}>
               {m.text}
+              {m.role === 'tutor' && m.text.length > 20 && !(busy && i === msgs.length - 1) && <div style={{ marginTop: 4 }}><SpeakButton id={`tutor-${i}`} text={m.text} /></div>}
               {m.quiz && m.role === 'tutor' && i === msgs.length - 1 && mem.pending && (
                 <div className="chips" style={{ marginTop: 8 }}>
                   {m.quiz.options.map((_, j) => (

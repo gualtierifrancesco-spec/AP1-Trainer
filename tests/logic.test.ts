@@ -206,3 +206,20 @@ describe('Offline-Ausbilder', () => {
     expect(r.reply.text).toContain('1,19');
   });
 });
+
+import { prepareForSpeech, questionToSpeech } from '../src/lib/speech';
+describe('Vorlesen', () => {
+  it('formt Fachschreibweisen sprechbar um', () => {
+    expect(prepareForSpeech('z. B. 192.168.1.0/24 und 2^6 − 2')).toBe('zum Beispiel 192.168.1.0 Schrägstrich 24 und 2 hoch 6 minus 2');
+    expect(prepareForSpeech('nach Art. 6 Abs. 1 und § 38')).toBe('nach Artikel 6 Absatz 1 und Paragraf 38');
+    expect(prepareForSpeech('10 × 949 €')).toBe('10 mal 949 €');
+  });
+  it('liest Szenario, Frage, Tabelle und Antwortmöglichkeiten', () => {
+    const t = questionToSpeech(Q('r13'));
+    expect(t).toContain('Becker');
+    expect(t).toContain('Stückpreis');
+    const m = questionToSpeech(Q('n01'));
+    expect(m).toContain('A: Router.');
+    expect(m).toContain('B: Switch.');
+  });
+});

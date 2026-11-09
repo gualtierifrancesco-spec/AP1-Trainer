@@ -4,6 +4,7 @@ import { FLASHCARDS, TOPICS, TOPIC_MAP } from '../data/topics';
 import { setState, useAppState } from '../lib/store';
 import { cardDue, rateCard } from '../lib/progress';
 import { shuffle, rng } from '../lib/util';
+import { SpeakButton } from '../components/SpeakButton';
 
 export function Flashcards({ preset }: { preset?: TopicId }) {
   const s = useAppState();
@@ -61,11 +62,13 @@ export function Flashcards({ preset }: { preset?: TopicId }) {
               <div className="flash-face">
                 <span className="badge accent">{card.kind} · {TOPIC_MAP[card.topic].short}</span>
                 <span className="big">{card.front}</span>
+                <SpeakButton id={`fc-f-${card.id}`} text={card.front} />
                 <span className="small muted">Tippen zum Umdrehen</span>
               </div>
               <div className="flash-face back">
                 <span className="badge">{card.kind}</span>
                 <p style={{ fontSize: '1.1rem' }}>{card.back}</p>
+                <SpeakButton id={`fc-b-${card.id}`} text={card.back} />
               </div>
             </div>
           </div>

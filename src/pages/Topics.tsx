@@ -9,6 +9,7 @@ import { Visual } from '../components/Visuals';
 import { Widget } from '../widgets';
 import { QuizRunner, QuizSummaryView, type QuizSummary } from '../components/QuizRunner';
 import { LEVEL_LABEL } from '../components/QuestionView';
+import { SpeakButton } from '../components/SpeakButton';
 
 export function TopicList() {
   const s = useAppState();
@@ -106,7 +107,7 @@ export function TopicView({ id }: { id: TopicId }) {
             <span className="small muted">Abschnitt {sec + 1} von {t.sections.length}</span>
           </div>
           <article className="card lesson-sec">
-            <h2>{section.title}</h2>
+            <div className="row between"><h2>{section.title}</h2><SpeakButton id={`sec-${id}-${sec}`} label="Abschnitt vorlesen" text={() => [sec === 0 ? t.intro : '', section.title + '.', section.text, section.simple ? 'Einfach gesagt: ' + section.simple : '', section.example ? 'Beispiel aus dem Arbeitsalltag: ' + section.example : ''].filter(Boolean).join(' ')} /></div>
             {section.text.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
             {section.visual && <div className="visual"><Visual id={section.visual} /></div>}
             {section.simple && <div className="simple"><b>Einfach gesagt</b>{section.simple}</div>}
@@ -170,7 +171,7 @@ export function TopicView({ id }: { id: TopicId }) {
 
       {tab === 'wissen' && (
         <div className="stack">
-          <div className="card stack"><h3>Kurz zusammengefasst</h3><p>{t.summary}</p></div>
+          <div className="card stack"><div className="row between"><h3>Kurz zusammengefasst</h3><SpeakButton id={`sum-${id}`} text={() => `${t.title}. ${t.summary} Merksätze: ${t.merksaetze.join(' ')} Typische Fallen: ${t.traps.join(' ')}`} /></div><p>{t.summary}</p></div>
           <div className="card stack">
             <h3>Fachbegriffe</h3>
             <div className="term-list">{t.terms.map((x) => <div className="term" key={x.term}><b>{x.term}</b><p className="small">{x.def}</p></div>)}</div>

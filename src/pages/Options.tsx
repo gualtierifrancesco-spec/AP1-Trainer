@@ -3,12 +3,14 @@ import { defaultState, exportState, importState, replaceState, setState, storage
 import { POOL_STATS } from '../data/bank';
 import { FLASHCARDS, TOPICS } from '../data/topics';
 import { toast } from '../components/ui';
+import { speak, speechSupported, useGermanVoices } from '../lib/speech';
 
 export function Options() {
   const s = useAppState();
   const [backup, setBackup] = useState('');
   const [importText, setImportText] = useState('');
   const [confirmReset, setConfirmReset] = useState(false);
+  const voices = useGermanVoices();
 
   const copy = async () => {
     const data = exportState();
@@ -32,6 +34,34 @@ export function Options() {
             <button key={t} className="chip" aria-pressed={s.theme === t} onClick={() => setState((st) => ({ ...st, theme: t }), true)}>{t === 'system' ? 'Wie das Gerät' : t === 'light' ? 'Hell' : 'Dunkel'}</button>
           ))}
         </div>
+      </div>
+
+      <div className="card stack">
+        <h3>Vorlesen</h3>
+        {!speechSupported() ? (
+          <p className="muted">Dieser Browser hat keine Sprachausgabe. Auf iPhone, Android und in Chrome, Edge oder Safari funktioniert es.</p>
+        ) : (
+          <>
+            <p className="small muted">Neben jeder Aufgabe, jedem Unterrichtsabschnitt, jeder Lernkarte und jeder Antwort des Ausbilders gibt es einen 🔊-Knopf. Die Stimme kommt vom Gerät und funktioniert auf dem iPhone auch offline. Weitere deutsche Stimmen kannst du am iPhone unter Einstellungen → Bedienungshilfen → Gesprochene Inhalte → Stimmen → Deutsch laden.</p>
+            <span className="small" style={{ fontWeight: 700 }}>Geschwindigkeit</span>
+            <div className="chips">
+              {[[0.8, 'Langsam'], [0.9, 'Etwas langsamer'], [1, 'Normal'], [1.15, 'Schneller']].map(([r, l]) => (
+                <button key={r} className="chip" aria-pressed={(s.speechRate ?? 1) === r} onClick={() => setState((st) => ({ ...st, speechRate: r as number }), true)}>{l}</button>
+              ))}
+            </div>
+            {voices.length > 1 && (
+              <div className="field" style={{ maxWidth: 360 }}>
+                <label htmlFor="opt-voice">Stimme</label>
+                <select id="opt-voice" value={s.speechVoice ?? ''} onChange={(e) => setState((st) => ({ ...st, speechVoice: e.target.value || undefined }), true)}>
+                  <option value="">Standard</option>
+                  {voices.map((v) => <option key={v.voiceURI} value={v.voiceURI}>{v.name}{v.localService ? '' : ' (online)'}</option>)}
+                </select>
+              </div>
+            )}
+            <label className="row small"><input id="opt-auto" type="checkbox" checked={!!s.speechAuto} onChange={(e) => setState((st) => ({ ...st, speechAuto: e.target.checked }), true)} /> Aufgaben im Lernmodus automatisch vorlesen</label>
+            <button className="btn" style={{ alignSelf: 'flex-start' }} onClick={() => speak('test', 'Hallo! So klinge ich. Ein Netz mit /26 hat 2^6 − 2, also 62 nutzbare Hosts.')}>🔊 Stimme testen</button>
+          </>
+        )}
       </div>
 
       <div className="card stack">
