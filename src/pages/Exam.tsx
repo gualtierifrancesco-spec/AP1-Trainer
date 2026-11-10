@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Answer, AppState, ExamRecord } from '../types';
 import { getState, setState, useAppState, flush } from '../lib/store';
-import { createExam, examScore, gradeExam } from '../lib/exam';
+import { createExam, createFixedExam, examScore, gradeExam } from '../lib/exam';
+import { MUSTER_EXAMS } from '../data/questions/muster';
 import { recordResult } from '../lib/progress';
 import { isAnswered } from '../lib/grading';
 import { QuestionView } from '../components/QuestionView';
@@ -42,6 +43,16 @@ function ExamSetup() {
         </div>
         <p className="small muted">Jede Prüfung wird neu zusammengestellt. Aufgaben aus deinen letzten drei Prüfungen kommen seltener vor, schwache Themen häufiger. Rechenaufgaben bekommen jedes Mal neue Zahlen. Dein Bearbeitungsstand wird laufend gespeichert. Schließt du die App, pausiert der Timer, und du kannst später weitermachen.</p>
         <button className="btn primary" style={{ alignSelf: 'flex-start' }} onClick={start}>Neue Prüfung starten</button>
+      </div>
+      <div className="card stack">
+        <h3>Musterprüfung im Format der echten AP1</h3>
+        <p className="small muted">Ein fester Aufgabensatz mit 100 Punkten, aufgebaut wie eine echte Prüfung: eine durchgehende Ausgangssituation, fast nur offene Fragen, dazu Abbildungen, Konsolenausgaben, englische Fachtexte und ein Struktogramm. Alle Aufgaben sind eigens für diese App geschrieben.</p>
+        {MUSTER_EXAMS.map((m) => (
+          <button key={m.id} className="btn" style={{ alignSelf: 'flex-start' }} onClick={() => {
+            const e = createFixedExam(getState(), m);
+            setState((st) => ({ ...st, exams: [...st.exams.slice(-29), e], activeExamId: e.id }), true);
+          }}>{m.title} starten</button>
+        ))}
       </div>
       {done.length > 0 && (
         <div className="card stack">
@@ -148,7 +159,7 @@ function RunningExam({ exam }: { exam: ExamRecord }) {
             <p className="small">{block.situation}</p>
           </div>
           <div className="card">
-            <QuestionView key={q.id} q={q} answer={exam.answers[q.id]} onChange={setAnswer} label={`${cur.bi + 1}${String.fromCharCode(97 + cur.qi)})`} showMeta={false} />
+            <QuestionView key={q.id} q={q} answer={exam.answers[q.id]} onChange={setAnswer} label={`${cur.bi + 1}${String.fromCharCode(97 + cur.qi)})`} showMeta={false} hideScenario={q.scenario === block.situation} />
           </div>
           <div className="row between">
             <button className="btn" disabled={idx === 0} onClick={() => setIdx(idx - 1)}>Zurück</button>

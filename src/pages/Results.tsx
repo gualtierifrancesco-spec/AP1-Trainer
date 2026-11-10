@@ -110,7 +110,7 @@ export function Results({ id }: { id: string }) {
               const qi = b.questionIds.indexOf(qid);
               return (
                 <div key={qid} className="card stack">
-                  <QuestionView q={q} answer={e.answers[qid]} result={res[qid]} reveal label={`${bi + 1}${String.fromCharCode(97 + qi)})`} override={e.overrides?.[qid]} onOverride={(p) => setOverride(qid, p)} />
+                  <QuestionView q={q} answer={e.answers[qid]} result={res[qid]} reveal label={`${bi + 1}${String.fromCharCode(97 + qi)})`} override={e.overrides?.[qid]} onOverride={(p) => setOverride(qid, p)} hideScenario={q.scenario === b.situation} />
                   <button className="btn ghost sm" style={{ alignSelf: 'flex-start' }} onClick={() => tutor.ask(res[qid].status === 'richtig' ? 'Erkläre mir die Lösung noch einmal einfach.' : 'Warum ist meine Antwort falsch?', { topic: q.topic, question: q, answer: e.answers[qid], result: res[qid] })}>Ausbilder zu dieser Aufgabe fragen</button>
                 </div>
               );

@@ -33,6 +33,10 @@ interface QBase {
   explanation: string;
   /** Tipps für den IT-Ausbilder, ohne die Lösung zu verraten */
   hints?: string[];
+  /** Konsolenausgabe oder fremdsprachiger Text, wird in fester Schrift gezeigt */
+  code?: string;
+  /** Selbst gezeichnete Abbildung */
+  figure?: FigureId;
   /** Kennzeichnet Generator-Aufgaben */
   generated?: boolean;
 }
@@ -85,14 +89,29 @@ export interface MatchQuestion extends QBase {
   pairs: [string, string][];
 }
 
-export type Question = MCQuestion | MSQuestion | OpenQuestion | CalcQuestion | MatchQuestion;
+/** Anweisungen in die richtige Reihenfolge bringen (z. B. Struktogramm) */
+export interface OrderQuestion extends QBase {
+  type: 'order';
+  /** Anweisungen in der richtigen Reihenfolge */
+  items: string[];
+  /** Einrückung je Anweisung für die Darstellung der Lösung */
+  indent?: number[];
+  /** Paare von Positionen, die ohne Fehler vertauscht sein dürfen */
+  swaps?: [number, number][];
+}
+
+export type FigureId = 'ports' | 'ram-slots' | 'usb-ports';
+
+export type Question = MCQuestion | MSQuestion | OpenQuestion | CalcQuestion | MatchQuestion | OrderQuestion;
 
 export type Answer =
   | { type: 'mc'; value: number | null }
   | { type: 'ms'; value: number[] }
   | { type: 'open'; value: string }
   | { type: 'calc'; value: string[] }
-  | { type: 'match'; value: (number | null)[] };
+  | { type: 'match'; value: (number | null)[] }
+  /** Indizes der Anweisungen in der vom Nutzer gewählten Reihenfolge; leer = noch nicht sortiert */
+  | { type: 'order'; value: number[] };
 
 export interface GradeResult {
   points: number;

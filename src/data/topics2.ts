@@ -72,6 +72,22 @@ export const topicsB: Topic[] = [
           explain: 'Typ 1 heißt auch Bare-Metal-Hypervisor.',
         },
       },
+      {
+        title: 'Programmlogik und Struktogramme',
+        keys: ['struktogramm', 'nassi', 'shneiderman', 'schleife', 'solange', 'verzweigung', 'algorithmus', 'pseudocode', 'variable', 'array', 'feld', 'laufvariable', 'programmlogik'],
+        text:
+          'In der AP1 kommt oft eine kleine Aufgabe zur Programmlogik. Du musst nicht programmieren können. Du musst aber einen Ablauf lesen und ordnen können.\n\nEin Struktogramm zeigt einen Ablauf als Kästchen, die von oben nach unten abgearbeitet werden. Eine Anweisung ist ein einfaches Kästchen, zum Beispiel „zaehler = 0“. Eine Schleife wiederholt die Kästchen, die eingerückt in ihr stehen, solange eine Bedingung gilt. Eine Verzweigung teilt den Ablauf in einen Ja-Zweig und einen Nein-Zweig.\n\nEine Variable ist ein benannter Speicherplatz für einen Wert. Ein Feld, auf Englisch Array, speichert mehrere Werte unter einem Namen. Das erste Element hat meist die Nummer 0. Eine Laufvariable zählt mit, bei welchem Element die Schleife gerade ist.\n\nFür eine Zählschleife über ein Feld gilt immer dasselbe Muster. Zuerst wird die Laufvariable auf 0 gesetzt. Dann kommt die Schleife mit der Bedingung „solange Laufvariable kleiner als Anzahl der Elemente“. In der Schleife wird das aktuelle Element bearbeitet. Als letzte Anweisung in der Schleife wird die Laufvariable um 1 erhöht. Bei zwei verschachtelten Schleifen wird die innere Laufvariable vor der inneren Schleife jedes Mal neu auf 0 gesetzt.',
+        simple:
+          'Eine Schleife ist wie das Austeilen von Post in einem Haus. Du fängst bei Briefkasten 0 an, wirfst ein, gehst einen weiter, und hörst auf, wenn kein Briefkasten mehr da ist.',
+        example:
+          'Alle PCs einer Liste sollen ein Update bekommen. i = 0. Solange i kleiner als die Anzahl der PCs ist: Update auf PC Nummer i installieren, dann i um 1 erhöhen.',
+        check: {
+          q: 'Was passiert, wenn in einer Zählschleife das Erhöhen der Laufvariable fehlt?',
+          options: ['Die Schleife wird übersprungen', 'Die Schleife endet nie (Endlosschleife)', 'Das Feld wird gelöscht', 'Nichts, das ist egal'],
+          correct: 1,
+          explain: 'Die Bedingung bleibt immer wahr, weil sich die Laufvariable nie ändert.',
+        },
+      },
     ],
     widget: 'license-sort',
     widgetTitle: 'Welche Lizenz passt?',

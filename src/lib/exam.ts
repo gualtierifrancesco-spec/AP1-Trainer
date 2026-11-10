@@ -1,5 +1,6 @@
 import type { AppState, ExamBlock, ExamRecord, Question, TopicId, Answer } from '../types';
 import { FIXED } from '../data/bank';
+import type { FixedExamDef } from '../data/questions/muster';
 import { GENERATORS, freshGenerated } from '../data/generators';
 import { topicWeakness } from './progress';
 import { grade, emptyAnswer } from './grading';
@@ -65,7 +66,11 @@ function selectBlock(s: AppState, def: BlockDef, r: Rnd, used: Set<string>, used
     if (recent.has(q.id)) w *= 0.15; // in letzten Prüfungen gesehen
     if (q.level === 3) w *= 1.25;
     if (q.level === 1) w *= 0.6;
-    if (q.type === 'calc' || q.type === 'open') w *= 1.2;
+    // Die echte AP1 besteht fast nur aus offenen Aufgaben und Rechnungen
+    if (q.type === 'open') w *= 2.4;
+    else if (q.type === 'calc' || q.type === 'order') w *= 1.6;
+    else if (q.type === 'match') w *= 0.9;
+    else w *= 0.45;
     // Gewichtung nach Thema im Block (Hauptthema zuerst)
     w *= def.topics[0] === q.topic ? 1.15 : 1;
     return { q, key: Math.pow(r(), 1 / w) };
@@ -82,7 +87,7 @@ function selectBlock(s: AppState, def: BlockDef, r: Rnd, used: Set<string>, used
     if ((topicCount[q.topic] ?? 0) >= 4) continue;
     // Vielfalt: höchstens 2 Aufgaben desselben Typs, bis mindestens 3 Typen dabei sind
     const sameType = chosen.filter((c) => c.type === q.type).length;
-    if (sameType >= 2 && types.size < 3) continue;
+    if (sameType >= 3 && types.size < 2) continue;
     chosen.push(q);
     pts += q.points;
     types.add(q.type);
@@ -124,6 +129,32 @@ export function createExam(s: AppState, seed = Date.now()): ExamRecord {
     durationMin: s.examMinutes,
     remainingSec: s.examMinutes * 60,
     company,
+    blocks,
+    questions,
+    answers,
+    flagged: [],
+  };
+}
+
+/** Feste Musterprüfung im Format der echten AP1 */
+export function createFixedExam(s: AppState, def: FixedExamDef): ExamRecord {
+  const questions: Record<string, Question> = {};
+  const answers: Record<string, Answer> = {};
+  const blocks: ExamBlock[] = def.blocks.map((b) => {
+    b.ids.forEach((id) => {
+      const q = FIXED.find((x) => x.id === id);
+      if (!q) throw new Error(`Aufgabe fehlt: ${id}`);
+      questions[id] = q;
+      answers[id] = emptyAnswer(q);
+    });
+    return { title: b.title, situation: b.situation, questionIds: b.ids.slice() };
+  });
+  return {
+    id: uid(),
+    createdAt: Date.now(),
+    durationMin: s.examMinutes,
+    remainingSec: s.examMinutes * 60,
+    company: `${def.title} · ${def.company}`,
     blocks,
     questions,
     answers,

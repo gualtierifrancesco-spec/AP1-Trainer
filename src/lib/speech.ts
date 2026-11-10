@@ -145,6 +145,9 @@ export function questionToSpeech(q: Question): string {
     q.options.forEach((o, i) => parts.push(`${LETTERS[i]}: ${o}.`));
   }
   if (q.type === 'calc') parts.push(`Gesucht: ${q.fields.map((f) => f.label + (f.unit ? ` in ${f.unit}` : '')).join(', ')}.`);
+  if (q.code) parts.push('Dazu gehört ein Text oder eine Ausgabe, die du auf dem Bildschirm siehst.');
+  if (q.figure) parts.push('Dazu gehört eine Abbildung.');
+  if (q.type === 'order') parts.push('Bringe die Anweisungen in die richtige Reihenfolge.');
   if (q.type === 'match') {
     parts.push('Ordne zu.');
     parts.push(q.pairs.map(([l]) => l).join(', ') + '.');

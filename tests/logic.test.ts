@@ -114,6 +114,7 @@ describe('Prüfungsgenerator', () => {
       if (q.type === 'mc') full.answers[q.id] = { type: 'mc', value: q.correct };
       if (q.type === 'ms') full.answers[q.id] = { type: 'ms', value: q.correct };
       if (q.type === 'match') full.answers[q.id] = { type: 'match', value: q.pairs.map((_, i) => i) };
+      if (q.type === 'order') full.answers[q.id] = { type: 'order', value: q.items.map((_, i) => i) };
       if (q.type === 'open') full.answers[q.id] = { type: 'open', value: q.solution };
       if (q.type === 'calc') full.answers[q.id] = { type: 'calc', value: q.fields.map((f) => String(f.answer).replace('.', ',')) };
     }
@@ -234,5 +235,37 @@ describe('Stimmenauswahl', () => {
     expect(sorted[1].name).toBe('Anna (Erweitert)');
     expect(sorted[2].name).toBe('Anna');
     expect(voiceScore(v('Eddy'))).toBeLessThan(0);
+  });
+});
+
+import { MUSTER_EXAMS } from '../src/data/questions/muster';
+import { createFixedExam } from '../src/lib/exam';
+describe('Musterprüfung und Reihenfolge-Aufgaben', () => {
+  it('Musterprüfung A hat 4 Aufgaben und genau 100 Punkte', () => {
+    const e = createFixedExam(defaultState(), MUSTER_EXAMS[0]);
+    expect(e.blocks.length).toBe(4);
+    const pts = e.blocks.map((b) => b.questionIds.reduce((n, id) => n + e.questions[id].points, 0));
+    expect(pts).toEqual([25, 24, 25, 26]);
+    const open = Object.values(e.questions).filter((q) => q.type === 'open').length;
+    expect(open / Object.keys(e.questions).length).toBeGreaterThan(0.7);
+  });
+  it('Reihenfolge: Teilpunkte und erlaubte Vertauschungen', () => {
+    const q = Q('m27');
+    expect(grade(q, { type: 'order', value: [0, 1, 2, 3, 4, 5, 6, 7, 8] }).points).toBe(9);
+    expect(grade(q, { type: 'order', value: [1, 0, 2, 4, 3, 5, 6, 7, 8] }).points).toBe(9);
+    // b = b + 1 und s = s + 1 vertauscht: zwei Stellen falsch
+    expect(grade(q, { type: 'order', value: [0, 1, 2, 3, 4, 5, 6, 8, 7] }).points).toBe(7);
+    expect(grade(q, { type: 'order', value: [] }).status).toBe('leer');
+  });
+  it('Synonyme zählen bei Aufzählungen nicht doppelt', () => {
+    const q = Q('m04');
+    expect(grade(q, { type: 'open', value: 'Gültigkeit und Bindefrist' }).points).toBe(1);
+    expect(grade(q, { type: 'open', value: 'Datum und Zahlungsbedingungen' }).points).toBe(2);
+  });
+  it('Rechenfallen der Musterprüfung', () => {
+    expect(grade(Q('m28'), { type: 'calc', value: ['2.097.152.000', '42'] }).points).toBe(4);
+    expect(grade(Q('m28'), { type: 'calc', value: ['2.000.000.000', '8'] }).points).toBe(0);
+    expect(grade(Q('m26'), { type: 'calc', value: ['796.800', '256', '3113'] }).points).toBe(5);
+    expect(grade(Q('m22'), { type: 'calc', value: ['10.20.36.64', '10.20.36.127', '26'] }).points).toBe(3);
   });
 });

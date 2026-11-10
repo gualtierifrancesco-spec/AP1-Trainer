@@ -141,6 +141,8 @@ async function answerCurrent() {
   if (ta) await ta.type('Testantwort mit Verschlüsselung und Backup');
   const inputs = await page.$$('.card .calc-in input');
   for (const i of inputs) await i.type('1');
+  const down = await page.$('.card .order-btns button:last-child');
+  if (down) await down.click();
   const sels = await page.$$('.card .match select');
   for (const s of sels) await s.select('0');
 }
@@ -178,6 +180,26 @@ if (hasOverride) {
   const after = await page.$eval('.stat .v', (e) => e.textContent);
   log(`Selbstkorrektur: ${before} → ${after}`);
 }
+
+// Musterprüfung: alle Aufgaben durchgehen, Abbildungen und Ausgaben prüfen, abgeben
+await page.goto(url + '#pruefung'); await sleep(250);
+await clickText('Musterprüfung A starten'); await sleep(300);
+const total = await page.$$eval('.qmap button', (b) => b.length);
+if (total !== 28) throw new Error('Musterprüfung hat ' + total + ' Aufgaben');
+let figs = 0, codes = 0, orders = 0;
+for (let i = 0; i < total; i++) {
+  figs += await page.$$eval('.q .visual svg', (x) => x.length);
+  codes += await page.$$eval('.q .code-block', (x) => x.length);
+  orders += await page.$$eval('.q .order-row', (x) => (x.length ? 1 : 0));
+  await answerCurrent();
+  if (i < total - 1) await clickText('Weiter');
+}
+if (figs !== 4 || codes < 6 || orders !== 1) throw new Error(`Abbildungen ${figs}, Ausgaben ${codes}, Reihenfolge ${orders}`);
+await clickText('Abgeben'); await sleep(150);
+await clickText('Ja, jetzt abgeben'); await sleep(400);
+await expectText('Musterprüfung A');
+await expectText('Alle Aufgaben mit Musterlösung');
+log(`Musterprüfung ok (${total} Aufgaben, ${figs} Abbildungen, ${codes} Ausgaben)`);
 
 // Dashboard zeigt Prüfung
 await page.goto(url + '#start'); await sleep(300);

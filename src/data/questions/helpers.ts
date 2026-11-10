@@ -1,10 +1,17 @@
-import type { CalcField, CalcQuestion, Criterion, Level, MatchQuestion, MCQuestion, MSQuestion, OpenQuestion, Table, TopicId } from '../../types';
+import type { CalcField, CalcQuestion, Criterion, FigureId, Level, MatchQuestion, MCQuestion, MSQuestion, OpenQuestion, OrderQuestion, Table, TopicId } from '../../types';
 
 export interface Extra {
   scenario?: string;
   table?: Table;
   hints?: string[];
+  code?: string;
+  figure?: FigureId;
 }
+
+export const order = (
+  id: string, topic: TopicId, level: Level, points: number, question: string,
+  items: string[], indent: number[], swaps: [number, number][], explanation: string, extra: Extra = {},
+): OrderQuestion => ({ id, topic, level, points, type: 'order', question, items, indent, swaps, explanation, ...extra });
 
 export const mc = (
   id: string, topic: TopicId, level: Level, points: number, question: string,

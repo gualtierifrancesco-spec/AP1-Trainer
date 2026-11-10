@@ -4,12 +4,13 @@ import { netzQuestions, osiQuestions, subnetFixed } from './questions/netzwerk';
 import { softwareQuestions, securityQuestions, dsgvoQuestions } from './questions/sicherheit';
 import { rechnenQuestions, wirtQuestions, projektQuestions } from './questions/kaufm';
 import { scenarioQuestions } from './questions/szenarien';
+import { musterQuestions } from './questions/muster';
 import { GENERATORS, VARIANTS_PER_GENERATOR, generatorVariant, freshGenerated } from './generators';
 
 export const FIXED: Question[] = [
   ...hardwareQuestions, ...ergoQuestions, ...netzQuestions, ...osiQuestions, ...subnetFixed,
   ...softwareQuestions, ...securityQuestions, ...dsgvoQuestions,
-  ...rechnenQuestions, ...wirtQuestions, ...projektQuestions, ...scenarioQuestions,
+  ...rechnenQuestions, ...wirtQuestions, ...projektQuestions, ...scenarioQuestions, ...musterQuestions,
 ];
 
 export const VARIANTS: Question[] = GENERATORS.flatMap((g) =>

@@ -12,6 +12,7 @@ function perfectAnswer(q: Question): Answer {
     case 'open': return { type: 'open', value: q.solution };
     case 'calc': return { type: 'calc', value: q.fields.map((f) => (typeof f.answer === 'number' ? de(f.answer, 2) : f.answer)) };
     case 'match': return { type: 'match', value: q.pairs.map((_, i) => i) };
+    case 'order': return { type: 'order', value: q.items.map((_, i) => i) };
   }
 }
 

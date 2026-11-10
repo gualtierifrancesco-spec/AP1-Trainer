@@ -223,6 +223,7 @@ export function describeAnswer(q: Question, a?: Answer): string {
     case 'ms': return q.type === 'ms' && a.value.length ? a.value.map((i) => `„${q.options[i]}“`).join(', ') : 'nichts';
     case 'open': return a.value.trim() ? `„${a.value.trim().slice(0, 300)}“` : 'nichts';
     case 'calc': return q.type === 'calc' ? q.fields.map((f, i) => `${f.label} = ${a.value[i] || '–'}`).join(', ') : '';
+    case 'order': return q.type === 'order' && a.value.length ? a.value.map((i, n) => `${n + 1}. ${q.items[i]}`).join('; ') : 'nichts';
     case 'match': return q.type === 'match' ? q.pairs.map(([l], i) => `${l} → ${a.value[i] !== null && a.value[i] !== undefined ? q.pairs[a.value[i]!][1] : '–'}`).join('; ') : '';
   }
 }

@@ -2,7 +2,8 @@ import { useMemo } from 'react';
 import type { Answer, GradeResult, Question } from '../types';
 import { TOPIC_MAP } from '../data/topics';
 import { rng, shuffle } from '../lib/util';
-import { emptyAnswer, solutionText } from '../lib/grading';
+import { emptyAnswer, orderInitial, solutionText } from '../lib/grading';
+import { Figure } from './Figures';
 import { questionToSpeech } from '../lib/speech';
 import { SpeakButton } from './SpeakButton';
 
@@ -13,6 +14,7 @@ const TYPE_LABEL: Record<Question['type'], string> = {
   open: 'Offene Frage',
   calc: 'Rechenaufgabe',
   match: 'Zuordnung',
+  order: 'Reihenfolge',
 };
 export const LEVEL_LABEL = { 1: 'Anfänger', 2: 'Fortgeschritten', 3: 'IHK-Niveau' } as const;
 
@@ -33,9 +35,11 @@ interface Props {
   override?: number;
   onOverride?: (pts: number | undefined) => void;
   showMeta?: boolean;
+  /** Ausgangssituation nicht wiederholen, wenn sie schon über der Aufgabe steht */
+  hideScenario?: boolean;
 }
 
-export function QuestionView({ q, answer, onChange, result, reveal, label, override, onOverride, showMeta = true }: Props) {
+export function QuestionView({ q, answer, onChange, result, reveal, label, override, onOverride, showMeta = true, hideScenario }: Props) {
   const a = answer ?? emptyAnswer(q);
   const locked = !onChange || reveal;
   const rights = useMemo(() => (q.type === 'match' ? shuffle(rng(hash(q.id)), q.pairs.map((p, i) => ({ text: p[1], i }))) : []), [q]);
@@ -52,8 +56,10 @@ export function QuestionView({ q, answer, onChange, result, reveal, label, overr
           <span className="badge tnum">{q.points} Punkte</span>
         </span>
       </div>
-      {q.scenario && <p className="scenario">{q.scenario}</p>}
+      {q.scenario && !hideScenario && <p className="scenario">{q.scenario}</p>}
       <p className="q-text">{q.question}</p>
+      {q.code && <pre className="code-block">{q.code}</pre>}
+      {q.figure && <div className="visual"><Figure id={q.figure} /></div>}
       {q.table && (
         <div className="tbl-wrap">
           <table className="tbl">
@@ -148,6 +154,38 @@ export function QuestionView({ q, answer, onChange, result, reveal, label, overr
         </div>
       )}
 
+      {q.type === 'order' && a.type === 'order' && (() => {
+        const cur = a.value.length ? a.value : orderInitial(q);
+        const move = (pos: number, dir: -1 | 1) => {
+          const to = pos + dir;
+          if (to < 0 || to >= cur.length) return;
+          const next = cur.slice();
+          [next[pos], next[to]] = [next[to], next[pos]];
+          onChange?.({ type: 'order', value: next });
+        };
+        return (
+          <div className="order-list">
+            {!reveal && <p className="small muted">Verschiebe die Anweisungen mit den Pfeilen. Oben steht, was zuerst ausgeführt wird.</p>}
+            {cur.map((item, pos) => {
+              const ok = reveal && (item === pos || (q.swaps ?? []).some(([x, y]) => (pos === x && item === y) || (pos === y && item === x)));
+              return (
+                <div key={item} className={`order-row ${reveal ? (ok ? 'ok' : 'no') : ''}`}>
+                  <span className="order-num">{pos + 1}</span>
+                  <code className="order-text">{q.items[item]}</code>
+                  {!locked && (
+                    <span className="order-btns">
+                      <button type="button" className="btn sm" disabled={pos === 0} onClick={() => move(pos, -1)} aria-label={`Anweisung ${pos + 1} nach oben`}>▲</button>
+                      <button type="button" className="btn sm" disabled={pos === cur.length - 1} onClick={() => move(pos, 1)} aria-label={`Anweisung ${pos + 1} nach unten`}>▼</button>
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+            {!locked && a.value.length === 0 && <button type="button" className="btn sm" style={{ alignSelf: 'flex-start' }} onClick={() => onChange?.({ type: 'order', value: cur })}>Diese Reihenfolge so übernehmen</button>}
+          </div>
+        );
+      })()}
+
       {reveal && <Solution q={q} result={result} override={override} onOverride={onOverride} />}
     </div>
   );
@@ -170,6 +208,8 @@ function Solution({ q, result, override, onOverride }: { q: Question; result?: G
         <b>Musterlösung: </b>
         {q.type === 'match' ? (
           <ul className="detail-list">{q.pairs.map(([l, r], i) => <li key={i}>{l} → {r}</li>)}</ul>
+        ) : q.type === 'order' ? (
+          <div className="strukto">{q.items.map((t, i) => <code key={i} style={{ marginLeft: (q.indent?.[i] ?? 0) * 22 }}>{t}</code>)}</div>
         ) : (
           <span>{solutionText(q)}</span>
         )}
