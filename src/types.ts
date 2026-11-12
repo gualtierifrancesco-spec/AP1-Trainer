@@ -9,8 +9,7 @@ export type TopicId =
   | 'datenschutz'
   | 'rechnen'
   | 'wirtschaftlichkeit'
-  | 'projekt'
-  | 'wiso';
+  | 'projekt';
 
 /** 1 = Anfänger, 2 = Fortgeschritten, 3 = IHK-Niveau */
 export type Level = 1 | 2 | 3;

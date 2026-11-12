@@ -6,7 +6,7 @@ export type VisualId =
 
 export type WidgetId =
   | 'hardware-match' | 'ergo-check' | 'net-builder' | 'osi-explorer' | 'subnet-trainer'
-  | 'license-sort' | 'phishing' | 'dsgvo-cases' | 'calc-stepper' | 'nwa' | 'sla-calc' | 'wiso-cases';
+  | 'license-sort' | 'phishing' | 'dsgvo-cases' | 'calc-stepper' | 'nwa' | 'sla-calc';
 
 export interface CheckQ {
   q: string;
@@ -32,7 +32,7 @@ export interface Topic {
   id: TopicId;
   title: string;
   short: string;
-  area: 'Hardware & Arbeitsplatz' | 'Netzwerk' | 'Software & Sicherheit' | 'Kaufmännisch & Projekt' | 'Wirtschafts- und Sozialkunde';
+  area: 'Hardware & Arbeitsplatz' | 'Netzwerk' | 'Software & Sicherheit' | 'Kaufmännisch & Projekt';
   /** Gewicht in der Prüfung (Anteil an der Punkteverteilung) */
   examWeight: number;
   intro: string;

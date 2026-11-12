@@ -69,19 +69,19 @@ export function Results({ id }: { id: string }) {
         <div className="card stack">
           <h3>Ergebnis nach Thema</h3>
           {topics.map((x) => (
-            <div className="meter-row" key={x.t}><span>{TOPIC_MAP[x.t].short}</span><Bar pct={x.pct} tone={toneFor(x.pct)} /><span className="pct">{x.pct} %</span></div>
+            <div className="meter-row" key={x.t}><span>{(TOPIC_MAP[x.t]?.short ?? 'Sonstiges')}</span><Bar pct={x.pct} tone={toneFor(x.pct)} /><span className="pct">{x.pct} %</span></div>
           ))}
           <p className="small muted">IHK-Notenschlüssel: ab 92 % sehr gut, ab 81 % gut, ab 67 % befriedigend, ab 50 % ausreichend, ab 30 % mangelhaft.</p>
         </div>
         <div className="card stack">
           <h3>Das kannst du schon</h3>
-          <p>{strong.length ? strong.map((x) => TOPIC_MAP[x.t].title).join(', ') + '.' : 'Noch kein Thema mit mindestens 75 %. Das kommt mit Übung.'}</p>
+          <p>{strong.length ? strong.map((x) => (TOPIC_MAP[x.t]?.title ?? 'Sonstiges')).join(', ') + '.' : 'Noch kein Thema mit mindestens 75 %. Das kommt mit Übung.'}</p>
           <h3>Das solltest du noch lernen</h3>
           {weak.length ? (
             <div className="stack tight">
               {weak.map((x) => (
                 <div key={x.t} className="row between">
-                  <span>{TOPIC_MAP[x.t].title} ({x.pct} %)</span>
+                  <span>{(TOPIC_MAP[x.t]?.title ?? 'Sonstiges')} ({x.pct} %)</span>
                   <span className="row"><button className="btn sm" onClick={() => go(`thema-${x.t}`)}>Unterricht</button><button className="btn sm" onClick={() => go(`ueben-${x.t}`)}>Üben</button></span>
                 </div>
               ))}
@@ -111,7 +111,7 @@ export function Results({ id }: { id: string }) {
               return (
                 <div key={qid} className="card stack">
                   <QuestionView q={q} answer={e.answers[qid]} result={res[qid]} reveal label={`${bi + 1}${String.fromCharCode(97 + qi)})`} override={e.overrides?.[qid]} onOverride={(p) => setOverride(qid, p)} hideScenario={q.scenario === b.situation} />
-                  <button className="btn ghost sm" style={{ alignSelf: 'flex-start' }} onClick={() => tutor.ask(res[qid].status === 'richtig' ? 'Erkläre mir die Lösung noch einmal einfach.' : 'Warum ist meine Antwort falsch?', { topic: q.topic, question: q, answer: e.answers[qid], result: res[qid] })}>Ausbilder zu dieser Aufgabe fragen</button>
+                  <button className="btn ghost sm" style={{ alignSelf: 'flex-start' }} onClick={() => tutor.ask(res[qid].status === 'richtig' ? 'Erkläre mir die Lösung noch einmal einfach.' : 'Warum ist meine Antwort falsch?', { topic: TOPIC_MAP[q.topic] ? q.topic : 'hardware', question: q, answer: e.answers[qid], result: res[qid] })}>Ausbilder zu dieser Aufgabe fragen</button>
                 </div>
               );
             })}

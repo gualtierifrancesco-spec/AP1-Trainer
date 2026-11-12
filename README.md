@@ -39,7 +39,6 @@ Weitere Befehle:
 - **Lernmodus:** Themen, Stufe und Aufgabentyp wählen, ohne Zeitlimit, sofortige Lösung mit Rechenweg und Erklärung.
 - **Prüfungsmodus:** konfigurierbarer Countdown (Standard 90 Min.), vier Aufgabenblöcke à ca. 25 Punkte mit Handlungssituation, Einfach- und Mehrfachauswahl, offene Fragen, Rechenaufgaben, Zuordnungen, Tabellen. Aufgaben markieren, frei springen, automatische Speicherung, Abgabe jederzeit, Auswertung erst danach.
 - **Musterprüfung A:** fester Aufgabensatz im Format der echten AP1 (4 Aufgaben, 100 Punkte, fast nur offene Fragen, eigene Abbildungen, Konsolenausgaben, englische Fachtexte, Struktogramm als Reihenfolge-Aufgabe). Alle Aufgaben sind selbst geschrieben, es sind keine Originalaufgaben enthalten.
-- **WiSo (AP2):** eigenes Thema mit Unterricht, 40 Aufgaben und einer WiSo-Musterprüfung (30 Aufgaben, 60 Minuten, 100 Punkte). WiSo zählt nicht zur AP1-Bereitschaft und kommt nicht in die zufälligen AP1-Prüfungen.
 - **Auswertung:** Punkte, Prozent, IHK-Note (100-Punkte-Schlüssel), richtig/teilweise/falsch/leer, Punkte und Begründung je Aufgabe, Musterlösungen, Erwartungshorizont, Themen, die sitzen, und Themen, die fehlen. Offene Antworten können selbst nachkorrigiert werden.
 - **Wiederholung (Spaced Repetition):** Falsche Aufgaben landen automatisch im Wiederholungsbereich (Leitner-System: 0, 1, 3, 7, 14, 30 Tage).
 - **Lernkarten:** aus Fachbegriffen, Formeln und IHK-Fallen, mit eigener Wiederholungslogik, plus Spickzettel-Ansicht vor der Prüfung.

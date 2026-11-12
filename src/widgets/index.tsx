@@ -17,7 +17,6 @@ export function Widget({ id }: { id: WidgetId }) {
     case 'calc-stepper': return <CalcStepper />;
     case 'nwa': return <Nwa />;
     case 'sla-calc': return <SlaCalc />;
-    case 'wiso-cases': return <ChoiceCases cases={WISO_CASES} options={['Krankenversicherung', 'Rentenversicherung', 'Arbeitslosenversicherung', 'Pflegeversicherung', 'Unfallversicherung']} />;
   }
 }
 
@@ -335,15 +334,6 @@ const LICENSE_CASES: Case[] = [
   { text: 'Eine Agentur möchte immer die neueste Version, monatlich zahlen und Lizenzen flexibel anpassen.', answer: 'Abonnement', why: 'Abos sind flexibel, kosten aber dauerhaft.' },
   { text: 'Ein Startup will die Software verändern und den Quellcode einsehen dürfen.', answer: 'Open Source', why: 'Nur bei Open Source ist der Quellcode offen und Änderungen sind erlaubt.' },
   { text: 'Ein Verein nutzt ein kostenloses Programm zum PDF-Zusammenfügen, dessen Quellcode geschlossen ist.', answer: 'Freeware', why: 'Kostenlos, aber nicht offen. Achtung: Manche Freeware ist nur privat kostenlos.' },
-];
-const WISO_CASES: Case[] = [
-  { text: 'Ein Techniker schneidet sich beim Öffnen eines Servergehäuses beim Kunden tief in die Hand.', answer: 'Unfallversicherung', why: 'Das ist ein Arbeitsunfall. Zuständig ist die Berufsgenossenschaft.' },
-  { text: 'Eine Mitarbeiterin ist seit acht Wochen wegen einer Lungenentzündung krank und bekommt kein Gehalt mehr vom Arbeitgeber.', answer: 'Krankenversicherung', why: 'Nach sechs Wochen Entgeltfortzahlung zahlt die Krankenkasse Krankengeld.' },
-  { text: 'Wegen fehlender Aufträge wird im Betrieb für drei Monate die Arbeitszeit gekürzt. Die Beschäftigten erhalten einen Ausgleich.', answer: 'Arbeitslosenversicherung', why: 'Das Kurzarbeitergeld zahlt die Bundesagentur für Arbeit.' },
-  { text: 'Ein Mitarbeiter kann nach einer schweren Erkrankung dauerhaft nur noch zwei Stunden am Tag arbeiten.', answer: 'Rentenversicherung', why: 'Die Rentenversicherung zahlt eine Rente wegen Erwerbsminderung.' },
-  { text: 'Die Mutter einer Kollegin braucht nach einem Schlaganfall täglich Hilfe beim Waschen und Anziehen.', answer: 'Pflegeversicherung', why: 'Die Pflegeversicherung zahlt je nach Pflegegrad Pflegegeld oder Sachleistungen.' },
-  { text: 'Eine Auszubildende stürzt morgens auf dem direkten Weg zum Betrieb mit dem Roller.', answer: 'Unfallversicherung', why: 'Ein Unfall auf dem direkten Weg zur Arbeit ist ein Wegeunfall.' },
-  { text: 'Nach dem Ende eines befristeten Vertrags findet ein Fachinformatiker zunächst keine neue Stelle.', answer: 'Arbeitslosenversicherung', why: 'Sie zahlt Arbeitslosengeld und unterstützt bei der Stellensuche.' },
 ];
 const DSGVO_CASES: Case[] = [
   { text: 'Ein Onlineshop speichert Name und Adresse, um eine Bestellung zu liefern.', answer: 'zulässig', why: 'Die Daten sind für die Erfüllung des Vertrags nötig (Art. 6 Abs. 1 lit. b).' },

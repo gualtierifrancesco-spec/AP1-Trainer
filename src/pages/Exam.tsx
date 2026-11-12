@@ -3,7 +3,6 @@ import type { Answer, AppState, ExamRecord } from '../types';
 import { getState, setState, useAppState, flush } from '../lib/store';
 import { createExam, createFixedExam, examScore, gradeExam } from '../lib/exam';
 import { MUSTER_EXAMS } from '../data/questions/muster';
-import { WISO_EXAMS } from '../data/questions/wiso';
 import { recordResult } from '../lib/progress';
 import { isAnswered } from '../lib/grading';
 import { QuestionView } from '../components/QuestionView';
@@ -46,17 +45,13 @@ function ExamSetup() {
         <button className="btn primary" style={{ alignSelf: 'flex-start' }} onClick={start}>Neue Prüfung starten</button>
       </div>
       <div className="card stack">
-        <h3>Musterprüfungen im Format der echten Prüfung</h3>
-        <p className="small muted">Feste Aufgabensätze mit 100 Punkten. Alle Aufgaben sind eigens für diese App geschrieben.</p>
-        {[...MUSTER_EXAMS, ...WISO_EXAMS].map((m) => (
-          <div key={m.id} className="card flat stack tight">
-            <div className="row between"><b>{m.title}</b><span className="badge">{m.durationMin ?? s.examMinutes} Min.</span></div>
-            {m.description && <p className="small muted">{m.description}</p>}
-            <button className="btn" style={{ alignSelf: 'flex-start' }} onClick={() => {
-              const e = createFixedExam(getState(), m);
-              setState((st) => ({ ...st, exams: [...st.exams.slice(-29), e], activeExamId: e.id }), true);
-            }}>{m.title} starten</button>
-          </div>
+        <h3>Musterprüfung im Format der echten AP1</h3>
+        <p className="small muted">Ein fester Aufgabensatz mit 100 Punkten, aufgebaut wie eine echte Prüfung: eine durchgehende Ausgangssituation, fast nur offene Fragen, dazu Abbildungen, Konsolenausgaben, englische Fachtexte und ein Struktogramm. Alle Aufgaben sind eigens für diese App geschrieben.</p>
+        {MUSTER_EXAMS.map((m) => (
+          <button key={m.id} className="btn" style={{ alignSelf: 'flex-start' }} onClick={() => {
+            const e = createFixedExam(getState(), m);
+            setState((st) => ({ ...st, exams: [...st.exams.slice(-29), e], activeExamId: e.id }), true);
+          }}>{m.title} starten</button>
         ))}
       </div>
       {done.length > 0 && (

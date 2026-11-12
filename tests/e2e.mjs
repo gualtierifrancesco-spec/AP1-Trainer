@@ -62,7 +62,7 @@ await clickText('Langsam');
 log('Vorlesen ok');
 
 // Alle Themen-Widgets und Zusammenfassungen rendern
-for (const t of ['hardware', 'ergonomie', 'netzwerk', 'osi', 'software', 'sicherheit', 'datenschutz', 'rechnen', 'wirtschaftlichkeit', 'projekt', 'wiso']) {
+for (const t of ['hardware', 'ergonomie', 'netzwerk', 'osi', 'software', 'sicherheit', 'datenschutz', 'rechnen', 'wirtschaftlichkeit', 'projekt']) {
   await page.goto(url + '#thema-' + t); await sleep(250);
   await clickText('Ausprobieren');
   await sleep(150);

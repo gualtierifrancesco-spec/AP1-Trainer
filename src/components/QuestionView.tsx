@@ -48,7 +48,7 @@ export function QuestionView({ q, answer, onChange, result, reveal, label, overr
     <div className="q">
       <div className="q-head">
         {label && <span className="q-num">{label}</span>}
-        {showMeta && <span className="badge accent">{TOPIC_MAP[q.topic].short}</span>}
+        {showMeta && <span className="badge accent">{TOPIC_MAP[q.topic]?.short ?? 'Sonstiges'}</span>}
         {showMeta && <span className="badge">{TYPE_LABEL[q.type]}</span>}
         {showMeta && <span className="badge">{LEVEL_LABEL[q.level]}</span>}
         <span className="row" style={{ marginLeft: 'auto', gap: 6 }}>

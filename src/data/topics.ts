@@ -2,11 +2,8 @@ import type { TopicId } from '../types';
 import type { Topic } from './topicTypes';
 import { topicsA } from './topics1';
 import { topicsB } from './topics2';
-import { topicsC } from './topics3';
 
-export const TOPICS: Topic[] = [...topicsA, ...topicsB, ...topicsC];
-/** Themen, die zur AP1 gehören (WiSo ist Teil der AP2) */
-export const AP1_TOPICS: Topic[] = TOPICS.filter((t) => t.examWeight > 0);
+export const TOPICS: Topic[] = [...topicsA, ...topicsB];
 export const TOPIC_MAP = Object.fromEntries(TOPICS.map((t) => [t.id, t])) as Record<TopicId, Topic>;
 
 export interface Flashcard {

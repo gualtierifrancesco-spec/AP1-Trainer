@@ -5,13 +5,12 @@ import { softwareQuestions, securityQuestions, dsgvoQuestions } from './question
 import { rechnenQuestions, wirtQuestions, projektQuestions } from './questions/kaufm';
 import { scenarioQuestions } from './questions/szenarien';
 import { musterQuestions } from './questions/muster';
-import { wisoQuestions } from './questions/wiso';
 import { GENERATORS, VARIANTS_PER_GENERATOR, generatorVariant, freshGenerated } from './generators';
 
 export const FIXED: Question[] = [
   ...hardwareQuestions, ...ergoQuestions, ...netzQuestions, ...osiQuestions, ...subnetFixed,
   ...softwareQuestions, ...securityQuestions, ...dsgvoQuestions,
-  ...rechnenQuestions, ...wirtQuestions, ...projektQuestions, ...scenarioQuestions, ...musterQuestions, ...wisoQuestions,
+  ...rechnenQuestions, ...wirtQuestions, ...projektQuestions, ...scenarioQuestions, ...musterQuestions,
 ];
 
 export const VARIANTS: Question[] = GENERATORS.flatMap((g) =>

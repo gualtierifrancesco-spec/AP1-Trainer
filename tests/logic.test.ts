@@ -269,32 +269,3 @@ describe('Musterprüfung und Reihenfolge-Aufgaben', () => {
     expect(grade(Q('m22'), { type: 'calc', value: ['10.20.36.64', '10.20.36.127', '26'] }).points).toBe(3);
   });
 });
-
-import { WISO_EXAMS } from '../src/data/questions/wiso';
-describe('WiSo', () => {
-  it('WiSo-Musterprüfung: 30 Aufgaben, 100 Punkte, 60 Minuten', () => {
-    const e = createFixedExam(defaultState(), WISO_EXAMS[0]);
-    const qs = Object.values(e.questions);
-    expect(qs.length).toBe(30);
-    expect(qs.reduce((n, q) => n + q.points, 0)).toBe(100);
-    expect(e.durationMin).toBe(60);
-    expect(e.remainingSec).toBe(3600);
-    expect(qs.every((q) => q.topic === 'wiso')).toBe(true);
-  });
-  it('WiSo-Aufgaben kommen nicht in zufällige AP1-Prüfungen und zählen nicht zur AP1-Bereitschaft', () => {
-    for (let seed = 1; seed <= 40; seed++) {
-      const e = createExam(defaultState(), seed * 77);
-      expect(Object.values(e.questions).some((q) => q.topic === 'wiso')).toBe(false);
-    }
-    let s = defaultState();
-    for (const q of FIXED.filter((x) => x.topic === 'wiso')) s = recordResult(s, q, { points: q.points, max: q.points, status: 'richtig', details: [] });
-    expect(readiness(s).pct).toBe(0);
-    const plan = learningPlan(defaultState());
-    expect(plan[plan.length - 1].topic).toBe('wiso');
-  });
-  it('Lohnabrechnung und Gewinnverteilung werden richtig bewertet', () => {
-    expect(grade(Q('z16'), { type: 'calc', value: ['689,60', '2.089,90'] }).points).toBe(4);
-    expect(grade(Q('z23'), { type: 'calc', value: ['24000', '14.400,00'] }).points).toBe(4);
-    expect(grade(Q('z20'), { type: 'order', value: [0, 1, 2, 3] }).points).toBe(4);
-  });
-});

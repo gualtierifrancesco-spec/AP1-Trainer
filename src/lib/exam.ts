@@ -152,8 +152,8 @@ export function createFixedExam(s: AppState, def: FixedExamDef): ExamRecord {
   return {
     id: uid(),
     createdAt: Date.now(),
-    durationMin: def.durationMin ?? s.examMinutes,
-    remainingSec: (def.durationMin ?? s.examMinutes) * 60,
+    durationMin: s.examMinutes,
+    remainingSec: s.examMinutes * 60,
     company: `${def.title} · ${def.company}`,
     blocks,
     questions,
