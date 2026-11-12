@@ -206,6 +206,9 @@ export interface FixedExamDef {
   id: string;
   title: string;
   company: string;
+  /** Abweichende Prüfungszeit in Minuten */
+  durationMin?: number;
+  description?: string;
   blocks: { title: string; situation: string; ids: string[] }[];
 }
 
@@ -214,6 +217,7 @@ export const MUSTER_EXAMS: FixedExamDef[] = [
     id: 'muster-a',
     title: 'Musterprüfung A',
     company: 'Nordlicht Systemhaus GmbH',
+    description: 'AP1 im Format der echten Prüfung: 4 Aufgaben, 100 Punkte, eine durchgehende Ausgangssituation, fast nur offene Fragen, dazu Abbildungen, Konsolenausgaben, englische Fachtexte und ein Struktogramm.',
     blocks: [
       { title: 'Aufgabe 1: Kundengespräch und Angebot', situation: S1, ids: ['m01', 'm02', 'm03', 'm04', 'm05'] },
       { title: 'Aufgabe 2: Arbeitsplatz zusammenbauen', situation: S2, ids: ['m06', 'm07', 'm08', 'm09', 'm10', 'm11', 'm12', 'm13', 'm14', 'm15'] },

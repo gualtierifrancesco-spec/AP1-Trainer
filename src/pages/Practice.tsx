@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Level, Question, TopicId } from '../types';
-import { TOPICS, TOPIC_MAP } from '../data/topics';
+import { AP1_TOPICS, TOPICS, TOPIC_MAP } from '../data/topics';
 import { POOL } from '../data/bank';
 import { GENERATORS, freshGenerated } from '../data/generators';
 import { useAppState } from '../lib/store';
@@ -21,7 +21,7 @@ export function Practice({ preset }: { preset?: TopicId }) {
   const [summary, setSummary] = useState<QuizSummary | null>(null);
 
   const start = () => {
-    const sel = topics.length ? topics : TOPICS.map((t) => t.id);
+    const sel = topics.length ? topics : AP1_TOPICS.map((t) => t.id);
     let pool = POOL.filter((q) => sel.includes(q.topic) && !q.id.includes('#'));
     // frische Generator-Aufgaben statt fester Varianten, damit sich Zahlen nicht wiederholen
     const gens = GENERATORS.filter((g) => sel.includes(g.topic));
@@ -51,7 +51,7 @@ export function Practice({ preset }: { preset?: TopicId }) {
       <div className="card stack">
         <h3>Themen</h3>
         <div className="chips">
-          <button className="chip" aria-pressed={topics.length === 0} onClick={() => setTopics([])}>Alle Themen</button>
+          <button className="chip" aria-pressed={topics.length === 0} onClick={() => setTopics([])}>Alle AP1-Themen</button>
           {TOPICS.map((t) => {
             const m = topicMastery(s, t.id);
             return (

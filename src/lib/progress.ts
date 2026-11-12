@@ -171,7 +171,8 @@ export function learningPlan(s: AppState): PlanItem[] {
     const rec = recommendedLevel(s, t.id);
     let action: PlanItem['action'];
     let text: string;
-    let priority = t.examWeight;
+    // WiSo gehört zur AP2 und steht deshalb im AP1-Lernplan immer unten
+    let priority = t.examWeight === 0 ? -100 : t.examWeight;
     if (!tp?.lessonDone && m.answered < 5) {
       action = 'lernen';
       text = 'Unterricht durcharbeiten. Du hast dieses Thema noch nicht gelernt.';

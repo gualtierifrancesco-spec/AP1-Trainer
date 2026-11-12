@@ -55,7 +55,7 @@ export function Plan() {
           return (
             <div key={t.id} className="stack tight">
               <div className="meter-row"><span>{t.short}</span><Bar pct={m.pct ?? 0} tone={toneFor(m.pct)} /><span className="pct">{m.pct === null ? '–' : `${m.pct} %`}</span></div>
-              <span className="small muted">Stufe 1: {m.byLevel[1] ?? '–'}{m.byLevel[1] !== null ? ' %' : ''} · Stufe 2: {m.byLevel[2] ?? '–'}{m.byLevel[2] !== null ? ' %' : ''} · Stufe 3: {m.byLevel[3] ?? '–'}{m.byLevel[3] !== null ? ' %' : ''} · {m.answered} Aufgaben · zuletzt {last ? `vor ${Math.floor((Date.now() - last) / DAY)} Tag(en)` : 'nie'} · empfohlen Stufe {rec.level} · Prüfungsgewicht {t.examWeight} %</span>
+              <span className="small muted">Stufe 1: {m.byLevel[1] ?? '–'}{m.byLevel[1] !== null ? ' %' : ''} · Stufe 2: {m.byLevel[2] ?? '–'}{m.byLevel[2] !== null ? ' %' : ''} · Stufe 3: {m.byLevel[3] ?? '–'}{m.byLevel[3] !== null ? ' %' : ''} · {m.answered} Aufgaben · zuletzt {last ? `vor ${Math.floor((Date.now() - last) / DAY)} Tag(en)` : 'nie'} · empfohlen Stufe {rec.level} · {t.examWeight ? `Prüfungsgewicht ${t.examWeight} %` : 'gehört zur AP2, zählt nicht zur AP1-Bereitschaft'}</span>
             </div>
           );
         })}
@@ -65,7 +65,7 @@ export function Plan() {
         <div className="card stack"><h3>Bereits gelernt</h3><p>{learned.length ? learned.map((t) => t.short).join(', ') : 'Noch kein Unterricht abgeschlossen.'}</p></div>
         <div className="card stack"><h3>Noch zu lernen</h3><p>{open.length ? open.map((t) => t.short).join(', ') : 'Alle Themen durchgearbeitet.'}</p></div>
       </div>
-      <p className="small muted">Alle Themen sind prüfungsrelevant für die AP1. Das Prüfungsgewicht ist eine Schätzung auf Basis der Prüfungsanforderungen (§ 8 der Ausbildungsverordnung) und typischer AP1-Aufgaben, keine offizielle IHK-Angabe.</p>
+      <p className="small muted">Alle Themen außer WiSo sind prüfungsrelevant für die AP1. WiSo wird erst in der AP2 geprüft. Das Prüfungsgewicht ist eine Schätzung auf Basis der Prüfungsanforderungen (§ 8 der Ausbildungsverordnung) und typischer AP1-Aufgaben, keine offizielle IHK-Angabe.</p>
     </div>
   );
 }
