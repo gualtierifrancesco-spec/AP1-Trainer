@@ -2,8 +2,25 @@ import type { TopicId } from '../types';
 import type { Topic } from './topicTypes';
 import { topicsA } from './topics1';
 import { topicsB } from './topics2';
+import { AP1_FOCUS, AP1_SECTIONS, AP1_TERMS, AP1_TRAPS } from './ap1';
 
-export const TOPICS: Topic[] = [...topicsA, ...topicsB];
+function withAp1(t: Topic): Topic {
+  const sections = t.sections.slice();
+  for (const { after, section } of AP1_SECTIONS[t.id] ?? []) {
+    const i = after === null ? -1 : sections.findIndex((x) => x.title === after);
+    if (after !== null && i < 0) throw new Error(`Abschnitt „${after}“ fehlt in ${t.id}`);
+    sections.splice(i + 1, 0, section);
+  }
+  return {
+    ...t,
+    sections,
+    terms: [...t.terms, ...(AP1_TERMS[t.id] ?? [])],
+    traps: [...t.traps, ...(AP1_TRAPS[t.id] ?? [])],
+    ap1: AP1_FOCUS[t.id],
+  };
+}
+
+export const TOPICS: Topic[] = [...topicsA, ...topicsB].map(withAp1);
 export const TOPIC_MAP = Object.fromEntries(TOPICS.map((t) => [t.id, t])) as Record<TopicId, Topic>;
 
 export interface Flashcard {

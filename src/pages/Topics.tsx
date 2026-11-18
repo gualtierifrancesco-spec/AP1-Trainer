@@ -10,6 +10,8 @@ import { Widget } from '../widgets';
 import { QuizRunner, QuizSummaryView, type QuizSummary } from '../components/QuizRunner';
 import { LEVEL_LABEL } from '../components/QuestionView';
 import { SpeakButton } from '../components/SpeakButton';
+import { Figure } from '../components/Figures';
+import { AP1_OPERATORS, AP1_OVERVIEW, type Ap1Focus } from '../data/ap1';
 
 export function TopicList() {
   const s = useAppState();
@@ -22,6 +24,16 @@ export function TopicList() {
           <h1>Alle Themen der AP1</h1>
           <p className="lead">Jedes Thema beginnt bei null. Du liest die Grundlagen, beantwortest kleine Verständnisfragen, probierst es interaktiv aus und machst zum Schluss einen Abschlusstest.</p>
         </div>
+      </div>
+      <div className="grid g2">
+        {[AP1_OVERVIEW, AP1_OPERATORS].map((b, i) => (
+          <details key={b.title} className="card stack ap1-info" open={i === 0 && !Object.values(s.topics).some((x) => x?.lessonDone)}>
+            <summary><h3>{b.title}</h3></summary>
+            <div className="row" style={{ justifyContent: 'flex-end' }}><SpeakButton id={`ap1-info-${i}`} text={() => `${b.title}. ${b.text}`} /></div>
+            {b.text.split('\n\n').map((p, j) => <p key={j}>{p}</p>)}
+            {i === 0 && <button className="btn sm" style={{ alignSelf: 'flex-start' }} onClick={() => go('pruefung')}>Zur Musterprüfung</button>}
+          </details>
+        ))}
       </div>
       {areas.map((area) => (
         <section key={area} className="stack">
@@ -98,6 +110,7 @@ export function TopicView({ id }: { id: TopicId }) {
       {tab === 'unterricht' && (
         <div className="stack">
           {sec === 0 && <p className="lead">{t.intro}</p>}
+          {sec === 0 && t.ap1 && <Ap1Box id={id} f={t.ap1} />}
           <div className="row between">
             <div className="lesson-nav" aria-label="Abschnitte">
               {t.sections.map((x, i) => (
@@ -108,7 +121,13 @@ export function TopicView({ id }: { id: TopicId }) {
           </div>
           <article className="card lesson-sec">
             <div className="row between"><h2>{section.title}</h2><SpeakButton id={`sec-${id}-${sec}`} label="Abschnitt vorlesen" text={() => [sec === 0 ? t.intro : '', section.title + '.', section.text, section.simple ? 'Einfach gesagt: ' + section.simple : '', section.example ? 'Beispiel aus dem Arbeitsalltag: ' + section.example : ''].filter(Boolean).join(' ')} /></div>
-            {section.text.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
+            {section.text.split('\n\n').map((p, i) => (
+              <div key={i} style={{ display: 'contents' }}>
+                <p>{p}</p>
+                {i === 0 && section.code && <pre className="code-block">{section.code}</pre>}
+                {i === 0 && section.figure && <div className="visual"><Figure id={section.figure} /></div>}
+              </div>
+            ))}
             {section.visual && <div className="visual"><Visual id={section.visual} /></div>}
             {section.simple && <div className="simple"><b>Einfach gesagt</b>{section.simple}</div>}
             {section.example && <div className="example"><b>Beispiel aus dem Arbeitsalltag</b>{section.example}</div>}
@@ -219,6 +238,28 @@ export function TopicView({ id }: { id: TopicId }) {
                   : <p>Du beherrschst dieses Thema auf IHK-Niveau.</p>;
               })()} />
           )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Ap1Box({ id, f }: { id: TopicId; f: Ap1Focus }) {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="card tint stack ap1-box">
+      <div className="row between"><b>So kommt das in der AP1 dran</b><SpeakButton id={`ap1-${id}`} text={() => `So kommt das in der AP1 dran. ${f.focus} Beispielaufgabe: ${f.task}${show ? ' Musterantwort: ' + f.answer + ' Tipp: ' + f.tip : ''}`} /></div>
+      <p>{f.focus}</p>
+      <div className="stack tight">
+        <span className="small muted">Beispielaufgabe im Prüfungsstil</span>
+        <p className="q-text">{f.task}</p>
+      </div>
+      {!show ? (
+        <button className="btn sm" style={{ alignSelf: 'flex-start' }} onClick={() => setShow(true)}>Erst selbst überlegen, dann Musterantwort zeigen</button>
+      ) : (
+        <div className="feedback richtig stack tight">
+          <p><b>Musterantwort: </b>{f.answer}</p>
+          <p><b>So gibt es volle Punkte: </b>{f.tip}</p>
         </div>
       )}
     </div>

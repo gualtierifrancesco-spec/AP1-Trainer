@@ -87,3 +87,24 @@ describe('Fragenpool', () => {
     console.log('Feste Aufgaben:', FIXED.length);
   });
 });
+
+import { TOPICS as ALL_TOPICS } from '../src/data/topics';
+describe('AP1-Ausrichtung im Unterricht', () => {
+  it('jedes Thema hat einen AP1-Kasten mit Aufgabe und Musterantwort', () => {
+    for (const t of ALL_TOPICS) {
+      expect(t.ap1?.focus.length, t.id).toBeGreaterThan(80);
+      expect(t.ap1?.task, t.id).toMatch(/\(\d+ Punkte\)$/);
+      expect(t.ap1?.answer.length, t.id).toBeGreaterThan(60);
+    }
+  });
+  it('neue Abschnitte stehen an der richtigen Stelle', () => {
+    const titles = (id: string) => ALL_TOPICS.find((t) => t.id === id)!.sections.map((s) => s.title);
+    expect(titles('projekt')[0]).toBe('Kundengespräch: Bedarf zielgruppengerecht ermitteln');
+    expect(titles('hardware')).toContain('Arbeitsspeicher einbauen: Dual-Channel und ESD');
+    expect(titles('netzwerk')).toContain('Fehlersuche mit Befehlen und Konsolenausgaben');
+    for (const t of ALL_TOPICS) for (const s of t.sections) {
+      if (s.check) expect(s.check.correct).toBeLessThan(s.check.options.length);
+      expect(s.text).not.toMatch(/^\s*[-•*] /m);
+    }
+  });
+});

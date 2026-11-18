@@ -1,4 +1,5 @@
-import type { TopicId } from '../types';
+import type { FigureId, TopicId } from '../types';
+import type { Ap1Focus } from './ap1';
 
 export type VisualId =
   | 'pc-parts' | 'ergo' | 'topo' | 'osi' | 'ip-binary' | 'os-layers'
@@ -23,6 +24,10 @@ export interface LessonSection {
   simple?: string;
   example?: string;
   visual?: VisualId;
+  /** Abbildung wie in der Prüfung */
+  figure?: FigureId;
+  /** Konsolenausgabe oder Datenblatt-Ausschnitt */
+  code?: string;
   check?: CheckQ;
   /** Schlagwörter, über die der IT-Ausbilder diesen Abschnitt findet */
   keys: string[];
@@ -45,4 +50,6 @@ export interface Topic {
   merksaetze: string[];
   traps: string[];
   summary: string;
+  /** So kommt das Thema in der AP1 dran (wird in topics.ts ergänzt) */
+  ap1?: Ap1Focus;
 }
