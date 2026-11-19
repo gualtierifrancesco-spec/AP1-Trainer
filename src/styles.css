@@ -413,3 +413,4 @@ body::before { content: ''; position: fixed; inset: 0 0 auto; height: env(safe-a
 .ap1-box { border-left: 3px solid var(--accent); }
 .ap1-info > p { margin: 0 0 .75em; }
 .ap1-info > summary + .row { margin: 10px 0 6px; }
+.muster-row { gap: 10px; flex-wrap: wrap; padding: 10px 0; border-top: 1px solid var(--line); }

@@ -375,3 +375,186 @@ export const AP1_TRAPS: Partial<Record<TopicId, string[]>> = {
     'Im Testprotokoll das erwartete Ergebnis vergessen.',
   ],
 };
+
+/** Ergänzungen zu den Themen der Musterprüfung B */
+export const AP1_SECTIONS_B: Partial<Record<TopicId, { after: string | null; section: LessonSection }[]>> = {
+  hardware: [
+    {
+      after: 'Grafikkarte, Netzteil und USV',
+      section: {
+        title: 'Netzteil auswählen und Stromkosten berechnen',
+        keys: ['netzteil', 'leistungsaufnahme', 'puffer', 'reserve', 'watt', 'wirkungsgrad', 'auslastung', 'stromkosten', 'kwh', 'kilowattstunde', '80 plus'],
+        text:
+          'In der AP1 wählst du oft ein Netzteil aus einer Liste von Bauteilen aus. Du gehst in drei Schritten vor.\n\nZuerst addierst du die Leistung aller Bauteile. Achte auf die Spalte Anzahl. Vier Speichermodule mit je 6 W brauchen 24 W, nicht 6 W. Dann rechnest du den Puffer dazu, den die Aufgabe nennt, zum Beispiel 15 Prozent. Dafür multiplizierst du mit 1,15. Zum Schluss wählst du das nächstgrößere Netzteil aus dem Angebot. Ein kleineres wäre überlastet.\n\nBei den Stromkosten kommt der Wirkungsgrad dazu. Er sagt, wie viel der Leistung aus der Steckdose beim PC ankommt. Den Rest verliert das Netzteil als Wärme. Das Netzteil zieht deshalb mehr Strom, als es abgibt. Du teilst die abgegebene Leistung durch den Wirkungsgrad.\n\nOft ist auch die Auslastung angegeben. Ein 600-W-Netzteil mit 40 Prozent Auslastung gibt im Schnitt nur 240 W ab. Die Stromkosten rechnest du dann so: abgegebene Leistung durch Wirkungsgrad, in Kilowatt umrechnen, mal Betriebsstunden, mal Preis pro Kilowattstunde.',
+        simple: 'Erst zusammenzählen, dann Puffer drauf, dann aufrunden. Beim Strom immer durch den Wirkungsgrad teilen, weil das Netzteil mehr frisst, als es abgibt.',
+        example:
+          'Ein Netzteil gibt im Schnitt 240 W ab und hat 92 % Wirkungsgrad. Es nimmt 240 W ÷ 0,92 = 260,87 W auf. Bei 1.680 Stunden im Jahr sind das 0,26087 kW × 1.680 h = 438,26 kWh. Bei 0,36 € pro kWh kostet das 157,77 €.',
+        check: {
+          q: 'Die Bauteile brauchen zusammen 520 W. Es sollen 15 % Puffer dazu. Netzteile gibt es in 50-W-Schritten. Welches wählst du?',
+          options: ['550 W', '600 W', '650 W', '500 W'],
+          correct: 1,
+          explain: '520 W × 1,15 = 598 W. Das nächstgrößere Netzteil hat 600 W.',
+        },
+      },
+    },
+    {
+      after: 'Datenmengen und Übertragung berechnen',
+      section: {
+        title: 'Speicherbedarf und Farbanzahl berechnen',
+        keys: ['speicherbedarf', 'farben', 'farbanzahl', 'farbtiefe', 'farbkanal', 'rgb', '2 hoch', 'gleitkomma', 'float', '32 bit', '64 bit', 'punktwolke', 'koordinate', 'prozent mehr'],
+        text:
+          'In der AP1 berechnest du oft, wie viel Speicher Daten brauchen. Das Muster ist immer gleich. Du rechnest aus, wie viele Bit ein einzelnes Element braucht, und multiplizierst mit der Anzahl.\n\nEin Beispiel ist ein 3D-Punkt mit den Koordinaten x, y und z. Wird jede Koordinate als 32-Bit-Zahl gespeichert, braucht ein Punkt 3 mal 32 Bit, also 96 Bit oder 12 Byte. Bei 64 Bit pro Koordinate sind es 24 Byte. Danach rechnest du in die gefragte Einheit um. Für KiB teilst du durch 1.024, für KB durch 1.000.\n\nDie Zahl der darstellbaren Farben hängt von den Bits ab. Mit n Bit gibt es 2 hoch n Möglichkeiten. Bei RGB hat jeder der drei Kanäle Rot, Grün und Blau eigene Bits. Mit 8 Bit je Kanal sind es 24 Bit und 2 hoch 24, also 16.777.216 Farben. Mit 10 Bit je Kanal sind es 30 Bit und gut eine Milliarde Farben.\n\nWird nach dem prozentualen Mehrbedarf gefragt, ist der bisherige Bedarf der Grundwert. Du teilst den zusätzlichen Bedarf durch den Grundwert und nimmst mal 100. Achte darauf, dass beide Werte dieselbe Einheit haben.',
+        simple: 'Erst ein Stück ausrechnen, dann mal Anzahl. Bei Farben: 2 hoch Bits.',
+        example: '6.000 Punkte mit je drei 64-Bit-Koordinaten brauchen 6.000 × 24 Byte = 144.000 Byte. Das sind 144.000 ÷ 1.024 = 140,625 KiB.',
+        check: {
+          q: 'Wie viele Farben lassen sich mit 8 Bit je RGB-Kanal darstellen?',
+          options: ['256', '768', '65.536', '16.777.216'],
+          correct: 3,
+          explain: '3 × 8 Bit = 24 Bit. 2 hoch 24 = 16.777.216.',
+        },
+      },
+    },
+  ],
+  netzwerk: [
+    {
+      after: 'Switch, Router und MAC-Adresse',
+      section: {
+        title: 'ARP: von der IP-Adresse zur MAC-Adresse',
+        keys: ['arp', 'arp -a', 'address resolution', 'arp cache', 'arp tabelle', 'mac ermitteln', 'ff-ff-ff-ff-ff-ff', 'broadcast mac'],
+        code: 'C:\\> arp -a\n Internetadresse Physische Adr.\n 192.168.1.1   d4-3f-cb-8c-37-8b\n 192.168.1.255 ff-ff-ff-ff-ff-ff',
+        text:
+          'Im LAN schickt ein Switch Daten an MAC-Adressen. Ein PC kennt aber meist nur die IP-Adresse seines Ziels. Das Address Resolution Protocol, kurz ARP, ermittelt zu einer IP-Adresse die passende MAC-Adresse.\n\nDer Ablauf ist einfach. Der PC schickt eine ARP-Anfrage als Broadcast an alle Geräte im Netz: Wer hat die IP-Adresse 192.168.1.1? Nur das Gerät mit dieser Adresse antwortet direkt mit seiner MAC-Adresse. Der PC speichert die Zuordnung eine Zeit lang im ARP-Cache. So muss er nicht jedes Mal neu fragen.\n\nMit dem Befehl arp -a siehst du den ARP-Cache. Ein Eintrag mit dem Typ dynamisch wurde per ARP gelernt und verfällt nach einiger Zeit. Ein statischer Eintrag wurde fest eingetragen. Die MAC-Adresse ff-ff-ff-ff-ff-ff steht für einen Broadcast an alle Geräte.\n\nWichtig für die Prüfung: Liegt das Ziel in einem anderen Netz, fragt der PC per ARP nicht nach dem Ziel, sondern nach der MAC-Adresse seines Standardgateways. Der Router leitet die Daten dann weiter.',
+        simple: 'ARP ist wie Rufen in ein Großraumbüro: „Wer ist Frau Müller?“ Nur sie meldet sich und sagt, an welchem Platz sie sitzt. Den Platz schreibst du dir auf.',
+        check: {
+          q: 'Wie verschickt ein PC eine ARP-Anfrage?',
+          options: ['Als Unicast an den DNS-Server', 'Als Broadcast an alle Geräte im Netz', 'Als Unicast an den Router im Internet', 'Gar nicht, die MAC steht im DHCP-Lease'],
+          correct: 1,
+          explain: 'Der PC kennt die MAC-Adresse ja noch nicht. Deshalb fragt er alle.',
+        },
+      },
+    },
+    {
+      after: 'WLAN einrichten und absichern',
+      section: {
+        title: 'Die Leuchtdioden an der Netzwerkbuchse',
+        keys: ['led', 'leds', 'leuchtdiode', 'link', 'activity', 'buchse', 'netzwerkbuchse', 'rj45', 'blinkt', 'leuchtet'],
+        figure: 'rj45-leds',
+        text:
+          'Die meisten Netzwerkbuchsen haben zwei kleine Leuchtdioden. Sie sind der schnellste Blick auf OSI-Schicht 1.\n\nDie Link-LED zeigt, ob eine physische Verbindung zur Gegenstelle besteht, meist zum Switch. Leuchtet sie dauerhaft, ist das Kabel in Ordnung und beide Seiten sind aktiv. Die Activity-LED blinkt, wenn Daten gesendet oder empfangen werden. Unregelmäßiges Blinken ist also normal.\n\nBleiben beide LEDs dunkel, besteht keine Verbindung. Dann prüfst du das Kabel, den Port am Switch und ob die Netzwerkkarte aktiviert ist. Bei manchen Karten zeigt die Farbe zusätzlich die Geschwindigkeit an, zum Beispiel grün für 1 Gbit/s und orange für 100 Mbit/s.\n\nWelche LED was bedeutet, legt der Hersteller fest. In der Prüfung steht deshalb meist dabei, welche LED welche Aufgabe hat. Lies das genau.',
+        simple: 'Eine LED sagt „Kabel steckt und die Gegenseite lebt“. Die andere flackert, wenn Daten fließen.',
+        check: {
+          q: 'Die Link-LED bleibt dunkel. Was prüfst du zuerst?',
+          options: ['Den DNS-Server', 'Das Netzwerkkabel und den Switch-Port', 'Die Firewall-Regeln', 'Den Browser-Cache'],
+          correct: 1,
+          explain: 'Ohne Link gibt es keine Verbindung auf Schicht 1. Höhere Schichten zu prüfen hat noch keinen Sinn.',
+        },
+      },
+    },
+  ],
+  subnetting: [
+    {
+      after: 'Private Adressen, Netzklassen und IPv6',
+      section: {
+        title: 'IPv6-Adressen zerlegen',
+        keys: ['ipv6', 'ungekuerzt', 'ungekürzt', 'interface identifier', 'interface-id', 'praefix', 'präfix', 'link local', 'verbindungslokal', 'fe80', 'global unicast', 'unique local', 'fd00', '::1', 'hexadezimal'],
+        code: 'fe80::4c1d:9aff:fe03:b27e%12\n\nVorne 64 Bit (Präfix /64):\n  fe80:0000:0000:0000\nHinten 64 Bit (Interface-ID):\n  4c1d:9aff:fe03:b27e',
+        text:
+          'In der AP1 sollst du eine IPv6-Adresse aus einer Ausgabe von ipconfig zerlegen. Dafür brauchst du vier Dinge.\n\nErstens die Länge. Eine IPv6-Adresse hat 128 Bit. Sie besteht aus acht Blöcken mit je 16 Bit, geschrieben als vier Hexadezimalzeichen.\n\nZweitens die ungekürzte Schreibweise. Zähle die Blöcke, die da sind. Die doppelten Doppelpunkte ersetzen so viele Null-Blöcke, dass es zusammen acht werden. Jeden Block schreibst du vierstellig, fehlende führende Nullen füllst du auf. Der Zusatz hinter dem Prozentzeichen, etwa %12, ist nur die Nummer der Netzwerkschnittstelle. Er gehört nicht zur Adresse.\n\nDrittens die Präfixlänge. In lokalen Netzen ist sie fast immer /64. Die vorderen 64 Bit beschreiben das Netz.\n\nViertens der Interface-Identifier. Das sind die hinteren 64 Bit, also die letzten vier Blöcke. Sie kennzeichnen das Gerät im Netz.\n\nAußerdem solltest du die Adressarten kennen. Adressen mit fe80 am Anfang sind verbindungslokal. Jedes Gerät erzeugt sie selbst, und sie gelten nur im eigenen Netzsegment. Router leiten sie nicht weiter. Globale Adressen beginnen mit 2 oder 3 und sind im Internet erreichbar. Adressen mit fd am Anfang sind private Adressen für das Firmennetz. ::1 ist der Loopback.',
+        simple: 'Vorne steht die Straße, das ist das Präfix. Hinten steht die Hausnummer, das ist der Interface-Identifier. :: heißt: Hier fehlen Nullen.',
+        example: 'Aus fe80::4c1d:9aff:fe03:b27e wird ungekürzt fe80:0000:0000:0000:4c1d:9aff:fe03:b27e. Vier Blöcke sind sichtbar, also fehlen vier Null-Blöcke. Das Präfix ist /64, der Interface-Identifier ist 4c1d:9aff:fe03:b27e.',
+        check: {
+          q: 'Wie lautet 2001:db8::1 ungekürzt?',
+          options: ['2001:0db8:0000:0001', '2001:0db8:0000:0000:0000:0000:0000:0001', '2001:db80:0000:0000:0000:0000:0000:1000', '2001:0db8:0001:0000:0000:0000:0000:0000'],
+          correct: 1,
+          explain: 'Drei Blöcke sind sichtbar, also ersetzt :: fünf Null-Blöcke. db8 wird zu 0db8, 1 wird zu 0001.',
+        },
+      },
+    },
+  ],
+  software: [
+    {
+      after: 'Virtualisierung und Cloud',
+      section: {
+        title: 'Dateiformate: Text oder binär',
+        keys: ['dateiformat', 'ascii', 'binaer', 'binär', 'binaerdatei', 'textdatei', 'dateiendung', 'konvertieren', 'konverter', 'obj', 'stl', 'ply', 'e57', 'unbekanntes format', 'proprietaer', 'offenes format'],
+        text:
+          'In der AP1 bekommt ihr manchmal Daten in einem Format, das niemand kennt. Du sollst sagen, wie du an Informationen kommst und wie man die Daten trotzdem nutzen kann.\n\nInformationen bekommst du über eine Internetrecherche zur Dateiendung, beim Absender der Datei, in der Dokumentation oder beim Support eures Programms und in Fachforen. Auch das Öffnen mit einem Texteditor verrät etwas. Kannst du den Inhalt lesen, ist es ein Textformat.\n\nKann euer Programm das Format nicht öffnen, gibt es mehrere Wege. Ihr wandelt die Datei mit einem Konverter in ein bekanntes Format um. Ihr bittet den Absender, die Daten in einem anderen Format zu liefern. Oder ihr installiert eine Import-Erweiterung. Beim Umwandeln können Informationen verloren gehen, deshalb prüft man das Ergebnis.\n\nViele Formate gibt es in zwei Varianten. Eine ASCII-Datei speichert alle Werte als lesbare Zeichen. Man kann sie mit einem Texteditor öffnen und von Hand ändern. Sie ist aber größer und wird langsamer verarbeitet. Eine Binärdatei speichert die Werte direkt als Bitfolgen. Sie ist für Menschen nicht lesbar und braucht ein passendes Programm. Dafür ist sie kleiner und lädt schneller.\n\nMan unterscheidet außerdem offene und proprietäre Formate. Ein offenes Format ist öffentlich beschrieben und kann von vielen Programmen gelesen werden. Ein proprietäres Format gehört einem Hersteller und bindet oft an dessen Software.',
+        simple: 'Eine ASCII-Datei ist ein Brief, den jeder lesen kann. Eine Binärdatei ist eine Geheimschrift, die nur das passende Programm versteht, dafür aber viel kürzer.',
+        check: {
+          q: 'Was ist ein Vorteil einer Binärdatei gegenüber einer ASCII-Datei?',
+          options: ['Man kann sie mit jedem Texteditor bearbeiten', 'Sie ist kleiner und wird schneller verarbeitet', 'Sie ist für Menschen besser lesbar', 'Sie braucht kein passendes Programm'],
+          correct: 1,
+          explain: 'Binärdaten speichern Zahlen direkt als Bits. Das spart Platz und Umrechnungszeit.',
+        },
+      },
+    },
+  ],
+  sicherheit: [
+    {
+      after: 'Firewall, Virenschutz und Verschlüsselung',
+      section: {
+        title: 'Malware erkennen und unterwegs sicher arbeiten',
+        keys: ['malware', 'schadsoftware', 'virus', 'wurm', 'trojaner', 'ransomware', 'spyware', 'unterwegs', 'mobil', 'zug', 'blickschutz', 'sichtschutz', 'hotspot', 'oeffentliches wlan', 'externe festplatte', 'externe ssd', 'aussendienst'],
+        text:
+          'Malware ist der Oberbegriff für Schadsoftware. In der AP1 sollst du Arten nennen und jeder ein Merkmal zuordnen. Ein Virus hängt sich an Programme oder Dateien und verbreitet sich, wenn sie ausgeführt werden. Ein Wurm verbreitet sich selbstständig über das Netzwerk, ohne dass jemand etwas anklicken muss. Ein Trojaner tarnt sich als nützliches Programm und öffnet heimlich einen Zugang. Ransomware verschlüsselt Daten und verlangt Lösegeld. Spyware späht Eingaben und Daten aus und schickt sie an Dritte.\n\nEin Virenschutz allein reicht nicht. Weitere Maßnahmen sind regelmäßige Updates, eine Firewall, ein Benutzerkonto ohne Administratorrechte, Datensicherungen und vor allem Schulungen. Die meisten Infektionen beginnen mit einem Klick auf einen Link oder Anhang.\n\nWer unterwegs arbeitet, muss die Vertraulichkeit besonders schützen. Eine Blickschutzfolie verhindert, dass Mitreisende mitlesen. Das Notebook wird beim Verlassen des Platzes gesperrt und nie unbeaufsichtigt gelassen. Statt eines offenen WLANs nutzt man den Mobilfunk-Hotspot und ein VPN. Vertrauliche Telefonate führt man nicht im Großraumabteil.\n\nSichert man unterwegs auf externe Datenträger, müssen sie verschlüsselt sein und getrennt vom Notebook aufbewahrt werden. Man nutzt mehrere Datenträger im Wechsel und zieht sie nach der Sicherung ab, damit Ransomware sie nicht mitverschlüsselt. Und man prüft regelmäßig, ob sich die Daten wiederherstellen lassen.',
+        simple: 'Virus braucht einen Wirt, Wurm kriecht allein, Trojaner verkleidet sich, Ransomware erpresst, Spyware spioniert.',
+        check: {
+          q: 'Welche Malware verbreitet sich selbstständig über das Netzwerk, ohne Zutun des Nutzers?',
+          options: ['Trojaner', 'Wurm', 'Spyware', 'Virus'],
+          correct: 1,
+          explain: 'Ein Wurm nutzt Sicherheitslücken im Netz. Ein Virus braucht dagegen eine Datei, die ausgeführt wird.',
+        },
+      },
+    },
+  ],
+  projekt: [
+    {
+      after: 'Angebot erstellen: Inhalt und Bindung',
+      section: {
+        title: 'Kaufvertragsstörungen',
+        keys: ['kaufvertragsstoerung', 'kaufvertragsstörung', 'stoerung', 'mangelhafte lieferung', 'sachmangel', 'lieferungsverzug', 'lieferverzug', 'annahmeverzug', 'zahlungsverzug', 'mahnung', 'nacherfuellung', 'nachbesserung', 'ersatzlieferung', 'ruecktritt', 'minderung', 'pflichten des', 'verkaeufer', 'kaeufer'],
+        text:
+          'Aus einem Kaufvertrag hat jede Seite Pflichten. Der Verkäufer muss die Ware rechtzeitig und mangelfrei übergeben und dem Käufer das Eigentum verschaffen. Der Käufer muss den Kaufpreis rechtzeitig zahlen und die Ware abnehmen. Wird eine dieser Pflichten verletzt, spricht man von einer Kaufvertragsstörung.\n\nBei einer mangelhaften Lieferung hat die Ware einen Fehler, oder es kommt die falsche Ware oder die falsche Menge. Der Käufer kann zuerst Nacherfüllung verlangen, also Nachbesserung durch Reparatur oder eine Ersatzlieferung. Erst wenn das scheitert, kann er zurücktreten, den Preis mindern oder Schadensersatz verlangen. Unter Kaufleuten muss er die Ware sofort prüfen und Mängel unverzüglich rügen.\n\nBeim Lieferungsverzug liefert der Verkäufer nicht rechtzeitig. Damit er in Verzug gerät, muss die Lieferung fällig sein, und der Käufer muss ihn mahnen. Die Mahnung ist nicht nötig, wenn ein Termin nach dem Kalender vereinbart war, zum Beispiel „Lieferung am 15. Mai“. Außerdem muss der Verkäufer die Verspätung zu vertreten haben. Der Käufer kann dann auf der Lieferung bestehen und den Verzugsschaden verlangen. Nach einer angemessenen Nachfrist kann er auch zurücktreten.\n\nBeim Annahmeverzug nimmt der Käufer ordnungsgemäß gelieferte Ware nicht an. Beim Zahlungsverzug zahlt er nicht rechtzeitig. Ohne Mahnung tritt der Zahlungsverzug spätestens 30 Tage nach Fälligkeit und Zugang der Rechnung ein. Bei Verbrauchern gilt das nur, wenn die Rechnung darauf hinweist.\n\nVorbeugen kann man mit festen Lieferterminen nach dem Kalender, Vertragsstrafen, sorgfältiger Lieferantenauswahl, einer Wareneingangskontrolle und klaren Zahlungsbedingungen.',
+        simple: 'Kommt die Ware kaputt, ist es eine mangelhafte Lieferung. Kommt sie zu spät, ist es Lieferungsverzug. Nimmt der Kunde sie nicht an, ist es Annahmeverzug. Zahlt er nicht, ist es Zahlungsverzug.',
+        check: {
+          q: 'Vereinbart war „Lieferung voraussichtlich in vier Wochen“. Was muss der Käufer tun, damit der Lieferant in Verzug gerät?',
+          options: ['Nichts, der Verzug tritt automatisch ein', 'Den Lieferanten mahnen', 'Sofort vom Vertrag zurücktreten', 'Den Kaufpreis mindern'],
+          correct: 1,
+          explain: 'Ein ungefährer Zeitraum ist kein Termin nach dem Kalender. Deshalb ist eine Mahnung nötig.',
+        },
+      },
+    },
+  ],
+};
+
+export const AP1_TERMS_B: Partial<Record<TopicId, { term: string; def: string }[]>> = {
+  netzwerk: [
+    { term: 'ARP', def: 'Address Resolution Protocol. Ermittelt zu einer IP-Adresse die MAC-Adresse im LAN.' },
+    { term: 'ARP-Cache', def: 'Zwischenspeicher mit gelernten Zuordnungen von IP- zu MAC-Adressen. Anzeige mit arp -a.' },
+    { term: 'Link-LED', def: 'Zeigt an der Netzwerkbuchse, ob eine physische Verbindung zur Gegenstelle besteht.' },
+  ],
+  subnetting: [
+    { term: 'Interface-Identifier', def: 'Die hinteren 64 Bit einer IPv6-Adresse. Kennzeichnen das Gerät im Netz.' },
+    { term: 'Verbindungslokale Adresse', def: 'IPv6-Adresse mit fe80 am Anfang. Gilt nur im eigenen Netzsegment.' },
+  ],
+  software: [
+    { term: 'ASCII-Datei', def: 'Speichert Werte als lesbare Zeichen. Größer und langsamer als eine Binärdatei.' },
+    { term: 'Binärdatei', def: 'Speichert Werte direkt als Bitfolgen. Kompakt, aber nicht direkt lesbar.' },
+  ],
+  sicherheit: [
+    { term: 'Wurm', def: 'Malware, die sich selbstständig über das Netzwerk verbreitet.' },
+    { term: 'Spyware', def: 'Malware, die Eingaben und Daten ausspäht und an Dritte sendet.' },
+  ],
+  projekt: [
+    { term: 'Lieferungsverzug', def: 'Der Verkäufer liefert schuldhaft nicht rechtzeitig. Meist ist vorher eine Mahnung nötig.' },
+    { term: 'Annahmeverzug', def: 'Der Käufer nimmt ordnungsgemäß gelieferte Ware nicht an.' },
+    { term: 'Nacherfüllung', def: 'Vorrangiges Recht bei Mängeln: Nachbesserung oder Ersatzlieferung.' },
+  ],
+};
+
+export const AP1_TRAPS_B: Partial<Record<TopicId, string[]>> = {
+  hardware: ['Beim Stromverbrauch mit dem Wirkungsgrad multiplizieren statt durch ihn zu teilen.', 'Beim Netzteil das nächstkleinere statt das nächstgrößere wählen.'],
+  subnetting: ['Den Zusatz %12 hinter einer IPv6-Adresse für einen Teil der Adresse halten.'],
+  netzwerk: ['Glauben, ARP frage bei einem Ziel im Internet nach dessen MAC-Adresse. Gefragt wird nach der MAC-Adresse des Gateways.'],
+  projekt: ['Bei einem ungefähren Liefertermin die Mahnung vergessen.', 'Bei einem Mangel sofort Rücktritt verlangen. Zuerst kommt die Nacherfüllung.'],
+};

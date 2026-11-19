@@ -282,3 +282,33 @@ describe('Ausbilder offline', () => {
     expect(tutorOff('Wie viel sind 4 GiB in Byte?', { topic: 'hardware' }, tutorMem()).reply.text).toMatch(/1\.024|Byte/);
   });
 });
+
+import { musterBQuestions } from '../src/data/questions/musterB';
+describe('Musterprüfung B', () => {
+  it('hat 4 Aufgaben mit je 25 Punkten', () => {
+    const e = createFixedExam(defaultState(), MUSTER_EXAMS[1]);
+    const pts = e.blocks.map((b) => b.questionIds.reduce((n, id) => n + e.questions[id].points, 0));
+    expect(pts).toEqual([25, 25, 25, 25]);
+  });
+  it('Musterlösungen der offenen Aufgaben bekommen die volle Punktzahl', () => {
+    for (const q of musterBQuestions) {
+      if (q.type !== 'open') continue;
+      const r = grade(q, { type: 'open', value: q.solution });
+      expect(r.points, `${q.id}: ${r.details.join(' ')}`).toBe(q.points);
+    }
+  });
+  it('Rechenaufgaben: richtige Werte zählen, typische Fallen nicht', () => {
+    expect(grade(Q('mb03'), { type: 'calc', value: ['201,60', '38,40', '705,00'] }).points).toBe(6);
+    expect(grade(Q('mb10'), { type: 'calc', value: ['128', 'FE80:0000:0000:0000:4C1D:9AFF:FE03:B27E', '64', '4c1d:9aff:fe03:b27e'] }).points).toBe(4);
+    expect(grade(Q('mb22'), { type: 'calc', value: ['491', '564,65', '600'] }).points).toBe(4);
+    expect(grade(Q('mb22'), { type: 'calc', value: ['491', '564,65', '550'] }).points).toBeLessThan(4);
+    expect(grade(Q('mb23'), { type: 'calc', value: ['438,26', '157,77'] }).points).toBe(3);
+    expect(grade(Q('mb29'), { type: 'calc', value: ['21.474.836.480', '557', '9', '17'] }).points).toBe(6);
+    // Download statt Upload
+    expect(grade(Q('mb29'), { type: 'calc', value: ['21.474.836.480', '192', '3', '12'] }).points).toBe(1.5);
+  });
+  it('kurze, richtige Schülerantworten werden erkannt', () => {
+    expect(grade(Q('mb04'), { type: 'open', value: 'Am 24. März durch die Lieferung, weil das Angebot freibleibend war und die Bestellung nur ein Antrag ist.' }).points).toBe(2);
+    expect(grade(Q('mb15'), { type: 'open', value: 'ping updates.gruenwerk.example. Der Server antwortet nicht oder die Firewall blockiert ICMP.' }).points).toBe(3);
+  });
+});

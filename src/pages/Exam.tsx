@@ -45,14 +45,21 @@ function ExamSetup() {
         <button className="btn primary" style={{ alignSelf: 'flex-start' }} onClick={start}>Neue Prüfung starten</button>
       </div>
       <div className="card stack">
-        <h3>Musterprüfung im Format der echten AP1</h3>
-        <p className="small muted">Ein fester Aufgabensatz mit 100 Punkten, aufgebaut wie eine echte Prüfung: eine durchgehende Ausgangssituation, fast nur offene Fragen, dazu Abbildungen, Konsolenausgaben, englische Fachtexte und ein Struktogramm. Alle Aufgaben sind eigens für diese App geschrieben.</p>
-        {MUSTER_EXAMS.map((m) => (
-          <button key={m.id} className="btn" style={{ alignSelf: 'flex-start' }} onClick={() => {
-            const e = createFixedExam(getState(), m);
-            setState((st) => ({ ...st, exams: [...st.exams.slice(-29), e], activeExamId: e.id }), true);
-          }}>{m.title} starten</button>
-        ))}
+        <h3>Musterprüfungen im Format der echten AP1</h3>
+        <p className="small muted">Feste Aufgabensätze mit je 100 Punkten, aufgebaut wie eine echte Prüfung: eine durchgehende Ausgangssituation, fast nur offene Fragen, dazu Abbildungen, Konsolenausgaben und Rechnungen. Weil die Aufgaben fest sind, siehst du beim Wiederholen genau, ob du besser wirst. Alle Aufgaben sind eigens für diese App geschrieben.</p>
+        {MUSTER_EXAMS.map((m) => {
+          const tries = done.filter((e) => e.company === m.company);
+          const best = tries.length ? Math.max(...tries.map((e) => examScore(e).score)) : null;
+          return (
+            <div key={m.id} className="row between muster-row">
+              <span className="stack tight"><b>{m.title}</b><span className="small muted">{m.company}{best !== null ? ` · bisher bestes Ergebnis ${de(best, 1)} Punkte` : ' · noch nicht gemacht'}</span></span>
+              <button className="btn" onClick={() => {
+                const e = createFixedExam(getState(), m);
+                setState((st) => ({ ...st, exams: [...st.exams.slice(-29), e], activeExamId: e.id }), true);
+              }}>{m.title} starten</button>
+            </div>
+          );
+        })}
       </div>
       {done.length > 0 && (
         <div className="card stack">

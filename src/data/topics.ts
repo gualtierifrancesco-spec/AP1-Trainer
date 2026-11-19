@@ -2,11 +2,11 @@ import type { TopicId } from '../types';
 import type { Topic } from './topicTypes';
 import { topicsA } from './topics1';
 import { topicsB } from './topics2';
-import { AP1_FOCUS, AP1_SECTIONS, AP1_TERMS, AP1_TRAPS } from './ap1';
+import { AP1_FOCUS, AP1_SECTIONS, AP1_SECTIONS_B, AP1_TERMS, AP1_TERMS_B, AP1_TRAPS, AP1_TRAPS_B } from './ap1';
 
 function withAp1(t: Topic): Topic {
   const sections = t.sections.slice();
-  for (const { after, section } of AP1_SECTIONS[t.id] ?? []) {
+  for (const { after, section } of [...(AP1_SECTIONS[t.id] ?? []), ...(AP1_SECTIONS_B[t.id] ?? [])]) {
     const i = after === null ? -1 : sections.findIndex((x) => x.title === after);
     if (after !== null && i < 0) throw new Error(`Abschnitt „${after}“ fehlt in ${t.id}`);
     sections.splice(i + 1, 0, section);
@@ -14,8 +14,8 @@ function withAp1(t: Topic): Topic {
   return {
     ...t,
     sections,
-    terms: [...t.terms, ...(AP1_TERMS[t.id] ?? [])],
-    traps: [...t.traps, ...(AP1_TRAPS[t.id] ?? [])],
+    terms: [...t.terms, ...(AP1_TERMS[t.id] ?? []), ...(AP1_TERMS_B[t.id] ?? [])],
+    traps: [...t.traps, ...(AP1_TRAPS[t.id] ?? []), ...(AP1_TRAPS_B[t.id] ?? [])],
     ap1: AP1_FOCUS[t.id],
   };
 }

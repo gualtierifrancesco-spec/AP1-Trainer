@@ -1,5 +1,6 @@
 import type { Question } from '../../types';
 import { calc, match, open, order } from './helpers';
+import { MUSTER_B_BLOCKS } from './musterB';
 
 /**
  * Musterprüfung A: eigene Aufgaben im Format der echten AP1 (vier Aufgaben, 100 Punkte,
@@ -220,5 +221,11 @@ export const MUSTER_EXAMS: FixedExamDef[] = [
       { title: 'Aufgabe 3: WLAN einrichten und Fehler suchen', situation: S3, ids: ['m16', 'm17', 'm18', 'm19', 'm20', 'm21', 'm22', 'm23'] },
       { title: 'Aufgabe 4: Arbeitsplätze automatisiert verwalten', situation: S4, ids: ['m24', 'm25', 'm26', 'm27', 'm28'] },
     ],
+  },
+  {
+    id: 'muster-b',
+    title: 'Musterprüfung B',
+    company: 'Grünwerk Landschaftsarchitektur GmbH',
+    blocks: MUSTER_B_BLOCKS,
   },
 ];

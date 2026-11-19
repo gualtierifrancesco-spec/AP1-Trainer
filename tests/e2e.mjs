@@ -42,7 +42,7 @@ await expectText('Was ist eine IP-Adresse?');
 await page.evaluate(() => document.querySelector('.card.tint .opt:nth-child(2)').click()); // 32 Bit = Index 1
 await sleep(100);
 await expectText('Richtig.');
-for (let i = 0; i < 4; i++) await clickText('Weiter');
+for (let i = 0; i < 20 && !(await page.evaluate(() => [...document.querySelectorAll('button')].some((b) => b.textContent.includes('Unterricht abschließen')))); i++) await clickText('Weiter');
 await clickText('Unterricht abschließen');
 await expectText('Subnetz-Rechner');
 await expectText('255.255.255.240');
@@ -207,6 +207,26 @@ await clickText('Ja, jetzt abgeben'); await sleep(400);
 await expectText('Musterprüfung A');
 await expectText('Alle Aufgaben mit Musterlösung');
 log(`Musterprüfung ok (${total} Aufgaben, ${figs} Abbildungen, ${codes} Ausgaben)`);
+
+// Musterprüfung B: ebenso, mit Tabellen und Netzwerkbuchse
+await page.goto(url + '#pruefung'); await sleep(250);
+await expectText('noch nicht gemacht');
+await clickText('Musterprüfung B starten'); await sleep(300);
+const totalB = await page.$$eval('.qmap button', (b) => b.length);
+if (totalB !== 29) throw new Error('Musterprüfung B hat ' + totalB + ' Aufgaben');
+let figsB = 0, codesB = 0, tablesB = 0;
+for (let i = 0; i < totalB; i++) {
+  figsB += await page.$$eval('.q .visual svg', (x) => x.length);
+  codesB += await page.$$eval('.q .code-block', (x) => x.length);
+  tablesB += await page.$$eval('.q .tbl', (x) => x.length);
+  await answerCurrent();
+  if (i < totalB - 1) await clickText('Weiter');
+}
+if (figsB !== 1 || codesB !== 5 || tablesB !== 3) throw new Error(`B: Abbildungen ${figsB}, Ausgaben ${codesB}, Tabellen ${tablesB}`);
+await clickText('Abgeben'); await sleep(150);
+await clickText('Ja, jetzt abgeben'); await sleep(400);
+await expectText('Grünwerk Landschaftsarchitektur GmbH');
+log(`Musterprüfung B ok (${totalB} Aufgaben, ${codesB} Ausgaben, ${tablesB} Tabellen)`);
 
 // Dashboard zeigt Prüfung
 await page.goto(url + '#start'); await sleep(300);
