@@ -34,13 +34,23 @@ function has(t: string, ...words: string[]) {
   return words.some((w) => t.includes(norm(w)));
 }
 
+/** Schlüsselwörter, die zugleich normale Wörter in Fragen sind („Gib mir …“ ≠ GiB) */
+const STOP_KEYS = new Set(['gib', 'mir', 'ein', 'eine', 'was', 'wie']);
+/** Kurze Schlüssel nur als ganzes Wort werten, sonst treffen sie mitten in anderen Wörtern */
+function keyIn(t: string, key: string) {
+  const k = norm(key);
+  if (STOP_KEYS.has(k)) return false;
+  if (k.length > 4) return t.includes(k);
+  return new RegExp(`(^|[^a-z0-9])${k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|[^a-z0-9])`).test(t);
+}
+
 function findSection(text: string, preferTopic: TopicId): { topic: TopicId; index: number; s: LessonSection } | null {
   const t = ' ' + norm(text) + ' ';
   let best: { topic: TopicId; index: number; s: LessonSection; score: number } | null = null;
   for (const tp of TOPICS) {
     tp.sections.forEach((s, index) => {
       let score = 0;
-      for (const k of s.keys) if (t.includes(norm(k))) score += norm(k).length > 4 ? 3 : 2;
+      for (const k of s.keys) if (keyIn(t, k)) score += norm(k).length > 4 ? 3 : 2;
       if (t.includes(norm(s.title))) score += 4;
       if (tp.id === preferTopic) score += 0.5;
       if (score > 0 && (!best || score > best.score)) best = { topic: tp.id, index, s, score };
@@ -128,6 +138,15 @@ export function offlineTutor(input: string, ctx: TutorContext, mem: TutorMemory)
     const i = Math.min(mem.hintIndex, hints.length - 1);
     const more = i < hints.length - 1 ? ' Schreib „Tipp“, wenn du noch einen Hinweis brauchst.' : ' Mehr verrate ich noch nicht. Probier es jetzt selbst.';
     return { reply: { role: 'tutor', text: `${hints[i]}${more}` }, mem: { ...mem, hintIndex: i + 1 } };
+  }
+
+  // 3b. Tipp ohne konkrete Aufgabe: Prüfungsfallen des Themas der Reihe nach
+  if (!q && has(t, 'tipp', 'hinweis')) {
+    const traps = topic.traps;
+    if (traps.length) {
+      const i = mem.hintIndex % traps.length;
+      return { reply: { role: 'tutor', text: `Ein Tipp für ${topic.title}. Darauf fallen viele in der Prüfung herein: ${traps[i]} Schreib „Tipp“, wenn du noch einen willst.` }, mem: { ...mem, hintIndex: i + 1 } };
+    }
   }
 
   // 4. Rechenweg Schritt für Schritt

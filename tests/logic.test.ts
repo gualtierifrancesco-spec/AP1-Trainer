@@ -269,3 +269,16 @@ describe('Musterprüfung und Reihenfolge-Aufgaben', () => {
     expect(grade(Q('m22'), { type: 'calc', value: ['10.20.36.64', '10.20.36.127', '26'] }).points).toBe(3);
   });
 });
+
+import { offlineTutor as tutorOff, newMemory as tutorMem } from '../src/lib/tutor';
+describe('Ausbilder offline', () => {
+  it('„Gib mir einen Tipp“ bleibt beim Thema und wird nicht als GiB gelesen', () => {
+    const r = tutorOff('Gib mir einen Tipp', { topic: 'netzwerk' }, tutorMem());
+    expect(r.reply.text).toContain('Netzwerk');
+    expect(r.reply.text).not.toMatch(/KiB|Byte/);
+  });
+  it('Fachbegriffe werden weiter erkannt', () => {
+    expect(tutorOff('Was ist DHCP?', { topic: 'netzwerk' }, tutorMem()).reply.text).toMatch(/DHCP/);
+    expect(tutorOff('Wie viel sind 4 GiB in Byte?', { topic: 'hardware' }, tutorMem()).reply.text).toMatch(/1\.024|Byte/);
+  });
+});

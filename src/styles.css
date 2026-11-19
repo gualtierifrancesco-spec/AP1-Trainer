@@ -330,16 +330,16 @@ table.tbl { border-collapse: collapse; width: 100%; font-size: 0.92rem; font-var
 }
 @media (max-width: 860px) { .tutor-fab { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); } }
 .tutor {
-  position: fixed; right: 0; top: 0; bottom: 0; width: min(440px, 100%); z-index: 40;
+  position: fixed; right: 0; top: var(--vvtop, 0px); height: var(--vvh, 100dvh); width: min(440px, 100%); z-index: 40; overscroll-behavior: contain;
   background: var(--surface); border-left: 1px solid var(--line); box-shadow: -10px 0 30px rgba(0, 0, 0, 0.15);
   display: flex; flex-direction: column;
   padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); padding-right: env(safe-area-inset-right, 0px);
 }
-.tutor-head { padding: 14px 16px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-.tutor-log { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
-.bubble { max-width: 90%; padding: 10px 13px; border-radius: 12px; line-height: 1.5; white-space: pre-wrap; }
-.bubble.tutor { background: var(--surface-2); align-self: flex-start; border-bottom-left-radius: 4px; }
-.bubble.user { background: var(--accent); color: var(--accent-ink); align-self: flex-end; border-bottom-right-radius: 4px; }
+.tutor-head { flex-shrink: 0; padding: 14px 16px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.tutor-log { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.bubble { flex-shrink: 0; max-width: 90%; padding: 10px 13px; border-radius: 12px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.97rem; }
+.bubble.from-tutor { background: var(--surface-2); align-self: flex-start; border-bottom-left-radius: 4px; }
+.bubble.from-user { background: var(--accent); color: var(--accent-ink); align-self: flex-end; border-bottom-right-radius: 4px; }
 .tutor-quick { display: flex; gap: 6px; overflow-x: auto; padding: 8px 16px; border-top: 1px solid var(--line); scrollbar-width: thin; }
 .tutor-quick button { white-space: nowrap; }
 .tutor-form { display: flex; gap: 8px; padding: 10px 16px 14px; }
@@ -388,7 +388,7 @@ body::before { content: ''; position: fixed; inset: 0 0 auto; height: env(safe-a
 /* Vorlesen */
 .speak-btn { gap: 6px; }
 .bubble .speak-btn { min-height: 26px; padding: 2px 8px; font-size: 0.78rem; }
-.bubble.tutor .speak-btn.ghost { color: var(--ink-3); }
+.bubble.from-tutor .speak-btn.ghost { color: var(--ink-3); }
 @media (max-width: 420px) { .q-head .speak-label { display: none; } }
 
 /* Konsolenausgaben, Abbildungen, Reihenfolge-Aufgaben */

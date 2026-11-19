@@ -107,7 +107,14 @@ await page.evaluate(() => document.querySelector('.tutor-fab').click()); await s
 await page.type('#tutor-input', 'Was ist DHCP?');
 await page.keyboard.press('Enter'); await sleep(250);
 await expectText('Discover');
+for (const q of ['Erkläre es mir einfacher', 'Gib mir einen Tipp']) { await page.type('#tutor-input', q); await page.keyboard.press('Enter'); await sleep(250); }
+{
+  const boxes = await page.$$eval('.bubble', (els) => els.map((e) => { const r = e.getBoundingClientRect(); return [r.top, r.bottom, getComputedStyle(e).position]; }));
+  if (boxes.some((b) => b[2] === 'fixed')) throw new Error('Ausbilder: Antwort liegt als eigenes Fenster über dem Verlauf');
+  for (let i = 1; i < boxes.length; i++) if (boxes[i][0] < boxes[i - 1][1] - 1) throw new Error('Ausbilder: Antworten überlappen');
+}
 await clickText('Schließen');
+if (await page.$('.tutor')) throw new Error('Ausbilder lässt sich nicht schließen');
 log('Ausbilder ok');
 
 // Wiederholung

@@ -85,5 +85,26 @@ export function Figure({ id }: { id: FigureId }) {
           <text x={240} y={112} textAnchor="middle" {...small}>USB-A-Anschlüsse in drei Farben und ein USB-C-Anschluss</text>
         </svg>
       );
+    case 'rj45-leds':
+      return (
+        <svg viewBox="0 0 480 190" role="img" aria-label="Netzwerkbuchse RJ45 mit einer grünen LED links (Link) und einer orangen LED rechts (Activity)">
+          <rect x={4} y={4} width={472} height={182} rx={6} fill="var(--surface-2)" stroke={line} />
+          {/* Gehäuseblech der Buchse */}
+          <rect x={150} y={30} width={180} height={130} rx={8} fill={face} stroke={ink} strokeWidth={2} />
+          {/* Öffnung mit Rastnase unten */}
+          <path d="M180 60 H300 V128 H262 V142 H218 V128 H180 Z" fill="#1b2430" stroke={ink} strokeWidth={2} />
+          {Array.from({ length: 8 }, (_, i) => <rect key={i} x={194 + i * 12.5} y={64} width={5} height={18} fill="#c9a227" />)}
+          {/* LEDs */}
+          <rect x={162} y={38} width={22} height={12} rx={2} fill="#2fbf5b" stroke={ink} />
+          <rect x={296} y={38} width={22} height={12} rx={2} fill="#f09a2b" stroke={ink} />
+          <path d="M150 44 H70" stroke={line} strokeDasharray="4 3" />
+          <path d="M330 44 H410" stroke={line} strokeDasharray="4 3" />
+          <text x={66} y={40} textAnchor="end" {...label}>1</text>
+          <text x={66} y={58} textAnchor="end" {...small}>grün</text>
+          <text x={414} y={40} {...label}>2</text>
+          <text x={414} y={58} {...small}>orange</text>
+          <text x={240} y={178} textAnchor="middle" {...small}>Netzwerkbuchse RJ45 an der Rückseite des PCs</text>
+        </svg>
+      );
   }
 }

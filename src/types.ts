@@ -100,7 +100,7 @@ export interface OrderQuestion extends QBase {
   swaps?: [number, number][];
 }
 
-export type FigureId = 'ports' | 'ram-slots' | 'usb-ports';
+export type FigureId = 'ports' | 'ram-slots' | 'usb-ports' | 'rj45-leds';
 
 export type Question = MCQuestion | MSQuestion | OpenQuestion | CalcQuestion | MatchQuestion | OrderQuestion;
 

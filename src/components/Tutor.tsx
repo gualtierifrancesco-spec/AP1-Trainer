@@ -102,6 +102,33 @@ export function Tutor() {
     setMsgs((m) => [...m, reply]);
   }
 
+  // iPhone: Fenster an den sichtbaren Bereich anpassen (Tastatur), Hintergrund nicht mitscrollen lassen
+  useEffect(() => {
+    if (!open) return;
+    const vv = window.visualViewport;
+    const root = document.documentElement;
+    const fit = () => {
+      if (!vv) return;
+      root.style.setProperty('--vvh', `${vv.height}px`);
+      root.style.setProperty('--vvtop', `${vv.offsetTop}px`);
+    };
+    fit();
+    vv?.addEventListener('resize', fit);
+    vv?.addEventListener('scroll', fit);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      vv?.removeEventListener('resize', fit);
+      vv?.removeEventListener('scroll', fit);
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prevOverflow;
+      root.style.removeProperty('--vvh');
+      root.style.removeProperty('--vvtop');
+    };
+  }, [open, setOpen]);
+
   if (!open) return null;
   const t = TOPIC_MAP[ctx.topic];
   return (
@@ -126,7 +153,7 @@ export function Tutor() {
         {aiNote && <p className="small" style={{ padding: '8px 16px', background: 'var(--warn-soft)', color: 'var(--warn)' }}>{aiNote}</p>}
         <div className="tutor-log" ref={logRef} aria-live="polite">
           {msgs.map((m, i) => (
-            <div key={i} className={`bubble ${m.role}`}>
+            <div key={i} className={`bubble from-${m.role}`}>
               {m.text}
               {m.role === 'tutor' && m.text.length > 20 && !(busy && i === msgs.length - 1) && <div style={{ marginTop: 4 }}><SpeakButton id={`tutor-${i}`} text={m.text} /></div>}
               {m.quiz && m.role === 'tutor' && i === msgs.length - 1 && mem.pending && (
@@ -143,7 +170,7 @@ export function Tutor() {
           {QUICK.map((q) => <button key={q} className="chip" onClick={() => send(q)} disabled={busy}>{q}</button>)}
         </div>
         <form className="tutor-form" onSubmit={(e) => { e.preventDefault(); send(input); }}>
-          <input id="tutor-input" type="text" value={input} onChange={(e) => setInput(e.target.value)} placeholder="Deine Frage …" aria-label="Frage an den Ausbilder" />
+          <input id="tutor-input" type="text" enterKeyHint="send" autoComplete="off" value={input} onChange={(e) => setInput(e.target.value)} placeholder="Deine Frage …" aria-label="Frage an den Ausbilder" />
           {busy ? <button type="button" className="btn" onClick={() => ctlRef.current?.abort()}>Stopp</button> : <button className="btn primary" type="submit">Senden</button>}
         </form>
       </aside>
